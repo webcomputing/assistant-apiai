@@ -1,0 +1,36 @@
+{
+  "name": "assistant-apiai",
+  "version": "0.0.1",
+  "description": "Brings api.ai to assistant.js",
+  "scripts": {
+    "test": "jasmine-ts spec/**/*.spec.ts"
+  },
+  "keywords": [
+    "api.ai",
+    "assistant.js"
+  ],
+  "peerDependencies": {
+    "assistant-source": "file:../assistant-source"
+  },
+  "devDependencies": {
+    "assistant-source": "file:../assistant-source",
+    "@types/jasmine": "^2.5.48",
+    "gulp": "^3.9.1",
+    "gulp-sourcemaps": "^2.6.0",
+    "gulp-tslint": "^8.1.0",
+    "gulp-typescript": "^3.1.7",
+    "jasmine-ts": "^0.1.3",
+    "tslint": "^5.4.0",
+    "typescript": "^2.3.4",
+    "reflect-metadata": "^0.1.10",
+    "debug": "^2.6.8"
+  },
+  "author": "Antonius Ostermann",
+  "license": "ISC",
+  "dependencies": {
+    "archiver": "^1.3.0",
+    "uuid": "3.0.1"
+  },
+  "main": "./lib/assistant-alexa.js",
+  "typings": "./dts/assistant-alexa.d.ts"
+}
