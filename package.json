@@ -1,6 +1,6 @@
 {
   "name": "assistant-apiai",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Brings api.ai to assistant.js",
   "scripts": {
     "test": "jasmine-ts spec/**/*.spec.ts"
@@ -10,18 +10,18 @@
     "assistant.js"
   ],
   "peerDependencies": {
-    "assistant-source": "file:../assistant-source"
+    "assistant-source": "^0.1.0"
   },
   "devDependencies": {
-    "assistant-source": "file:../assistant-source",
-    "@types/jasmine": "^2.5.48",
+    "assistant-source": "^0.1.0",
     "gulp": "^3.9.1",
     "gulp-sourcemaps": "^2.6.0",
     "gulp-tslint": "^8.1.0",
     "gulp-typescript": "^3.1.7",
     "jasmine-ts": "^0.1.3",
     "tslint": "^5.4.0",
-    "typescript": "^2.3.4",
+    "typescript": "2.3.4",
+    "@types/jasmine": "^2.5.48",
     "reflect-metadata": "^0.1.10",
     "debug": "^2.6.8"
   },
@@ -32,5 +32,8 @@
     "uuid": "3.0.1"
   },
   "main": "./lib/assistant-apiai.js",
-  "typings": "./dts/assistant-apiai.d.ts"
+  "typings": "./dts/assistant-apiai.d.ts",
+  "publishConfig": {
+    "registry": "http://sinopia.verstehe.local:4873"
+  }
 }

@@ -11,7 +11,7 @@ export class Extractor implements unifierInterfaces.RequestConversationExtractor
   public component: Component;
   private configuration: Configuration;
 
-  constructor(@inject("meta:component//platform:apiai") componentMeta: Component) {
+  constructor(@inject("meta:component//apiai") componentMeta: Component) {
     this.component = componentMeta;
     this.configuration = componentMeta.configuration as Configuration;
   }

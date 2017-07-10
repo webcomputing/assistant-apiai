@@ -1,8 +1,8 @@
 import { Component } from "ioc-container";
 import { SpecSetup, unifierInterfaces, rootInterfaces } from "assistant-source";
 
-import { Extraction, HandlerInterface } from "../src/components/apiai/interfaces";
-import { ApiAiHandle } from "../src/components/apiai/handle";
+import { Extraction, HandlerInterface } from "./components/apiai/interfaces";
+import { ApiAiHandle } from "./components/apiai/handle";
 
 export class SpecHelper implements unifierInterfaces.PlatformSpecHelper {
   specSetup: SpecSetup

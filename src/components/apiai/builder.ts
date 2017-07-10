@@ -10,7 +10,7 @@ import { Configuration } from "./interfaces";
 
 @injectable()
 export class Builder implements unifierInterfaces.PlatformGenerator {
-  @inject("meta:component//platform:apiai")
+  @inject("meta:component//apiai")
   private component: Component;
 
   execute(language: string, buildDir: string, intentConfigurations: unifierInterfaces.GenerateIntentConfiguration[], parameterMapping: unifierInterfaces.GeneratorEntityMapping) {
