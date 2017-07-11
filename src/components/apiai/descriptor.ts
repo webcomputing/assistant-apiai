@@ -1,4 +1,4 @@
-import { ComponentDescriptor } from "ioc-container";
+import { ComponentDescriptor } from "inversify-components";
 import { unifierInterfaces } from "assistant-source";
 import { Extractor } from "./extractor";
 import { OptionalConfiguration } from "./interfaces";

@@ -1,6 +1,6 @@
 import { unifierInterfaces, rootInterfaces } from "assistant-source";
 import { injectable, inject } from "inversify";
-import { Component } from "ioc-container";
+import { Component } from "inversify-components";
 
 import { Configuration, Extraction } from "./interfaces";
 import { apiaiToGenericIntent } from "./intent-dict";

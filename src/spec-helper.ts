@@ -1,4 +1,4 @@
-import { Component } from "ioc-container";
+import { Component } from "inversify-components";
 import { SpecSetup, unifierInterfaces, rootInterfaces } from "assistant-source";
 
 import { Extraction, HandlerInterface } from "./components/apiai/interfaces";

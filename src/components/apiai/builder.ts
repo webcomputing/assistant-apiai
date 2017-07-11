@@ -1,5 +1,5 @@
 import { injectable, inject } from "inversify";
-import { Component } from "ioc-container";
+import { Component } from "inversify-components";
 import * as fs from "fs";
 import { v4 as uuid } from "uuid";
 import * as archiver from "archiver";
