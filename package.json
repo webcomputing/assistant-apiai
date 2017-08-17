@@ -1,6 +1,6 @@
 {
   "name": "assistant-apiai",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Brings api.ai to assistant.js",
   "scripts": {
     "test": "jasmine-ts spec/**/*.spec.ts"

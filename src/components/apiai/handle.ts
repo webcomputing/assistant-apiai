@@ -7,13 +7,13 @@ import { log } from "../../global";
 @injectable()
 export class ApiAiHandle extends AbstractResponseHandler implements HandlerInterface {
   responseCallback: rootInterfaces.ResponseCallback;
-  endSessionExecuter: Function;
+  killSession: Function;
   
   constructor(
     @inject("core:root:current-request-context") extraction: rootInterfaces.RequestContext,
-    @inject("core:unifier:end-session-callbacks-executer") endSessionExecuter: Function
+    @inject("core:unifier:current-kill-session-promise") killSession: Function
   ) {
-    super(extraction, endSessionExecuter);
+    super(extraction, killSession);
   }
 
   getBody() {
