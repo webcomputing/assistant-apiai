@@ -162,7 +162,8 @@ export class Builder implements unifierInterfaces.PlatformGenerator {
       }
     });
 
-    return withoutUndefinedUtterances;
+    // Return result, but also add the "invokeGenericIntent", which acts as a the "default welcome intent"
+    return withoutUndefinedUtterances.concat([ { intent: "invokeGenericIntent", entities: [], utterances: [] } ]);
   }
 
   private makeIntentParameters(parameters: string[], parameterMapping: unifierInterfaces.GeneratorEntityMapping): { name: string, dataType: string, value: string }[] {

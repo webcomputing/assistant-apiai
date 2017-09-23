@@ -14,7 +14,8 @@ export const apiaiToGenericIntent: {[name: string]: unifierInterfaces.GenericInt
   "noGenericIntent": unifierInterfaces.GenericIntent.No,
   "helpGenericIntent": unifierInterfaces.GenericIntent.Help,
   "cancelGenericIntent": unifierInterfaces.GenericIntent.Cancel,
-  "stopGenericIntent": unifierInterfaces.GenericIntent.Stop
+  "stopGenericIntent": unifierInterfaces.GenericIntent.Stop,
+  "invokeGenericIntent": unifierInterfaces.GenericIntent.Invoke
 };
 
 export const genericIntentToApiai: {[intent: number]: string} = swap(apiaiToGenericIntent);
