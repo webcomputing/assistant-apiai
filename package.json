@@ -1,14 +1,24 @@
 {
   "name": "assistant-apiai",
   "version": "0.1.3",
-  "description": "Brings api.ai to assistant.js",
+  "description": "Enables integration of api.ai into AssistantJS. Also needed for Google Assistant!",
   "scripts": {
     "test": "jasmine-ts spec/**/*.spec.ts"
   },
   "keywords": [
     "api.ai",
-    "assistant.js"
+    "AssistantJS",
+    "google actions",
+    "google assistant"
   ],
+  "homepage": "http://www.assistantjs.org",
+  "bugs": "https://github.com/webcomputing/assistant-apiai/issues",
+  "author": "Antonius Ostermann <ostermann.antonius@gmail.com> (http://www.antonius-ostermann.de)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/webcomputing/assistant-apiai"
+  },
+  "license": "SEE LICENSE IN <LICENSE>",
   "peerDependencies": {
     "assistant-source": "^0.1.0"
   },
