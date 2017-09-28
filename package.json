@@ -1,6 +1,6 @@
 {
   "name": "assistant-apiai",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Enables integration of api.ai into AssistantJS. Also needed for Google Assistant!",
   "scripts": {
     "test": "jasmine-ts spec/**/*.spec.ts"
@@ -18,7 +18,7 @@
     "type": "git",
     "url": "https://github.com/webcomputing/assistant-apiai"
   },
-  "license": "ISC",
+  "license": "SEE LICENSE IN <LICENSE>",
   "peerDependencies": {
     "assistant-source": "^0.1.0"
   },
