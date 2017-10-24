@@ -6,6 +6,9 @@ export interface OptionalConfiguration {
 
   /** Entitiy configuration for api.ai */
   entities?: { [name: string]: string };
+
+  /** If set to true and if there is no chat bubble text, "displayText" will be set to the voiceResponse */
+  defaultDisplayIsVoice?: boolean;
 };
 
 export interface Configuration extends OptionalConfiguration {};
@@ -15,4 +18,5 @@ export interface Extraction extends
   unifierInterfaces.OptionalExtractions.SpokenTextExtraction {}
 
 export interface HandlerInterface extends
-  unifierInterfaces.MinimalResponseHandler {};
+  unifierInterfaces.MinimalResponseHandler,
+  unifierInterfaces.OptionalHandlerFeatures.GUI.ChatBubble {}
