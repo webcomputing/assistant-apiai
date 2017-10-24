@@ -6,7 +6,7 @@ import { log } from "../../global";
 
 @injectable()
 export class ApiAiHandle extends AbstractResponseHandler implements HandlerInterface {
-  chatBubbles: string[] | null;
+  chatBubbles: string[] | null = null;
   responseCallback: rootInterfaces.ResponseCallback;
   killSession: () => Promise<void>;
   configuration: Configuration;
@@ -24,13 +24,13 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
     let response = this.getBaseBody();
     if (this.voiceMessage !== null && this.voiceMessage !== "") {
       response.speech = this.voiceMessage;
+    }
 
-      // Set "displayText"
-      if (this.chatBubbles === null) {
-        response.displayText = this.configuration.defaultDisplayIsVoice === true ? this.voiceMessage : "";
-      } else {
-        response.displayText = this.chatBubbles.join(" ");
-      }
+    // Set "displayText"
+    if (this.chatBubbles === null) {
+      response.displayText = this.configuration.defaultDisplayIsVoice === true ? this.voiceMessage : "";
+    } else {
+      response.displayText = this.chatBubbles.join(" ");
     }
 
     log("Responding with ", response);

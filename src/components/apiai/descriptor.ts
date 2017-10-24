@@ -11,7 +11,8 @@ export const defaultConfiguration: OptionalConfiguration = {
     number: "@sys.number",
     givenName: "@sys.given-name",
     date: "@sys.date"
-  }
+  },
+  defaultDisplayIsVoice: true
 };
 
 export let descriptor: ComponentDescriptor = {
