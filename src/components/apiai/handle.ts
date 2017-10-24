@@ -40,11 +40,7 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
 
   protected getBaseBody(): any {
     return {
-      data: {
-        response: {
-          shouldEndSession: this.endSession
-        },
-      }
+      data: {}
     };
   }
 }
