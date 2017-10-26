@@ -4,10 +4,10 @@ export interface OptionalConfiguration {
   /** Route for api.ai requests, default: '/apiai */
   route?: string;
 
-  /** Entitiy configuration for api.ai */
+  /** Entitiy configuration for api.ai, default: {} */
   entities?: { [name: string]: string };
 
-  /** If set to true and if there is no chat bubble text, "displayText" will be set to the voiceResponse */
+  /** If set to true and if there is no chat bubble text, "displayText" will be set to the voiceResponse, default: true */
   defaultDisplayIsVoice?: boolean;
 };
 
