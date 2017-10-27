@@ -21,14 +21,14 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
   }
 
   getBody() {
-    let response = this.getBaseBody();
+    let response: { data: {}, speech?: string, displayText?: string } = { data: {} };
     if (this.voiceMessage !== null && this.voiceMessage !== "") {
       response.speech = this.voiceMessage;
     }
 
     // Set "displayText"
     if (this.chatBubbles === null) {
-      response.displayText = this.configuration.defaultDisplayIsVoice === true ? this.voiceMessage : "";
+      response.displayText = this.configuration.defaultDisplayIsVoice === true && this.voiceMessage !== null ? this.voiceMessage : "";
     } else {
       response.displayText = this.chatBubbles.join(" ");
     }
@@ -36,11 +36,5 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
     log("Responding with ", response);
 
     return response;
-  }
-
-  protected getBaseBody(): any {
-    return {
-      data: {}
-    };
   }
 }

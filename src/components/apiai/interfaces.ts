@@ -19,4 +19,10 @@ export interface Extraction extends
 
 export interface HandlerInterface extends
   unifierInterfaces.MinimalResponseHandler,
-  unifierInterfaces.OptionalHandlerFeatures.GUI.ChatBubble {}
+  unifierInterfaces.OptionalHandlerFeatures.GUI.ChatBubble {
+    getBody(): {
+      data: any;
+      speech?: string;
+      displayText?: string;
+    };
+  }
