@@ -33,8 +33,6 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
       response.displayText = this.chatBubbles.join(" ");
     }
 
-    log("Responding with ", response);
-
     return response;
   }
 }
