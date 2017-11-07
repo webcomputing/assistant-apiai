@@ -1,7 +1,10 @@
 ## Integration of api.ai into AssistantJS
 This package integrates [api.ai][1] (now known as "dialogflow") into [AssistantJS][2]. Just install it with `npm install assistant-apiai --save` and add it as an dependency to your `index.ts`:
 ```typescript
+import { descriptor as apiAiDescriptor } from "assistant-apiai";
 
+/** and below, in your "initializeSetups" method: */
+assistantJs.registerComponent(apiAiDescriptor);
 ```
 This component also integrates a generator into AssistantJS. So, executing `assistant g`, creates a dialogflow-specific build in your `builds` directory.
 
