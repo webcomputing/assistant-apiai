@@ -17,7 +17,14 @@ export class Extractor implements unifierInterfaces.RequestConversationExtractor
   }
 
   async fits(context: rootInterfaces.RequestContext): Promise<boolean> {
-    return (context.path === this.configuration.route);
+    return (
+      context.path === this.configuration.route && 
+      typeof context.body !== "undefined" && 
+      typeof context.body.sessionId !== "undefined" && 
+      typeof context.body.lang !== "undefined" && 
+      typeof context.body.result !== "undefined" &&
+      typeof context.body.result.resolvedQuery !== "undefined"  
+    );
   }
 
   async extract(context: rootInterfaces.RequestContext): Promise<Extraction> {
