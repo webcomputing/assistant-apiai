@@ -17,14 +17,35 @@ export class Extractor implements unifierInterfaces.RequestConversationExtractor
   }
 
   async fits(context: rootInterfaces.RequestContext): Promise<boolean> {
-    return (
+    // 1) Check if request format is o.k.
+    if (!(
       context.path === this.configuration.route && 
       typeof context.body !== "undefined" && 
       typeof context.body.sessionId !== "undefined" && 
       typeof context.body.lang !== "undefined" && 
       typeof context.body.result !== "undefined" &&
       typeof context.body.result.resolvedQuery !== "undefined"  
-    );
+    )) {
+      return false;
+    }
+
+    // 2) Check if secret header fields are o.k.
+    if (typeof this.configuration.authenticationHeaders === "undefined" || Object.keys(this.configuration.authenticationHeaders).length < 1) {
+      throw new Error("You did not specify any authenticationHeaders in your assistant-apiai configuration. Since version 0.2, you have to specify "+
+        "authentication headers. Check out the assistant-apiai README or the assistant-apiai configuration interface for more information.");
+    } else {
+      // For each configured header field, check if the given value of this header is equal the configured value
+      const headersAreValid = Object.keys(this.configuration.authenticationHeaders).filter(headerKey => 
+        context.headers[headerKey] !== this.configuration.authenticationHeaders[headerKey]
+      ).length === 0;
+
+      if (headersAreValid) {
+        return true;
+      } else {
+        log("Given headers did not match configured authenticationHeaders. Aborting.");
+        return false;
+      }
+    }
   }
 
   async extract(context: rootInterfaces.RequestContext): Promise<Extraction> {

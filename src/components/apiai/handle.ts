@@ -17,7 +17,7 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
     @inject("meta:component//apiai") componentMeta: Component
   ) {
     super(extraction, killSession);
-    this.configuration = componentMeta.configuration;
+    this.configuration = componentMeta.configuration as Configuration;
   }
 
   getBody() {

@@ -1,4 +1,5 @@
 0.2.0
+- adds authenticationHeaders support and configuration (now required!)
 - removes shouldEndSession from data hash going to api.ai
 - implements AssistantJS's chat messages
 - introduces defaultDisplayIsVoice, making the default display configurable
