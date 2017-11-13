@@ -1,0 +1,74 @@
+import { unifierInterfaces, rootInterfaces } from "assistant-source";
+import { Extractor } from "../src/components/apiai/extractor";
+import { validRequestContext } from "./support/mocks/request-context";
+
+describe("this.extractor", function() {
+  beforeEach(function() {
+    this.extractor = this.container.inversifyInstance.get(unifierInterfaces.componentInterfaces.requestProcessor);
+    this.context = JSON.parse(JSON.stringify(validRequestContext));
+  });
+
+  describe("fits", function() {
+    describe("with full mock this.context", function() {
+      it("returns true", function() {
+        return this.extractor.fits(this.context).then(result => expect(result).toBeTruthy());
+      });
+    });
+
+    describe("with no authenticationHeaders configured", function() {
+      beforeEach(function() {
+        (this.extractor as any).configuration.authenticationHeaders = {};
+      });
+
+      it("throws exception", function() {
+        return this.extractor.fits(this.context).then(result => fail()).catch(result => expect(true).toBeTruthy());
+      });
+    });
+
+    describe("with wrong path", function() {
+      beforeEach(function() {
+        this.context.path = "/wrong-path";
+      });
+
+      it("returns false", function() {
+        return this.extractor.fits(this.context).then(result => expect(result).toBeFalsy());
+      });
+    });
+
+    describe("with wrong format", function() {
+      beforeEach(function() {
+        delete this.context.body.sessionId;
+      });
+
+      it("returns false", function() {
+        return this.extractor.fits(this.context).then(result => expect(result).toBeFalsy());
+      });
+    });
+
+    describe("with wrong authentication headers", function() {
+      beforeEach(function() {
+        this.context.headers.secretHeader1 = "wrongHeader";
+      });
+
+      it("returns false", function() {
+        return this.extractor.fits(this.context).then(result => expect(result).toBeFalsy());
+      });
+    });
+  });
+
+  describe("extract", function() {
+    it("returns correct extraction", async function(done) {
+      this.extraction = await this.extractor.extract(this.context);
+
+      expect(this.extraction).toEqual({
+        sessionID: "apiai-my-apiai-session-id",
+        intent: "myIntent",
+        entities: {"entityOne": "entityValue1", "entityTwo": "entityValue2"},
+        language: "en",
+        component: this.extractor.component,
+        spokenText: "my spoken query"
+      });
+      done()
+    });
+  });
+});
