@@ -17,30 +17,22 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
     @inject("meta:component//apiai") componentMeta: Component
   ) {
     super(extraction, killSession);
-    this.configuration = componentMeta.configuration;
+    this.configuration = componentMeta.configuration as Configuration;
   }
 
   getBody() {
-    let response = this.getBaseBody();
+    let response: { data: {}, speech?: string, displayText?: string } = { data: {} };
     if (this.voiceMessage !== null && this.voiceMessage !== "") {
       response.speech = this.voiceMessage;
     }
 
     // Set "displayText"
     if (this.chatBubbles === null) {
-      response.displayText = this.configuration.defaultDisplayIsVoice === true ? this.voiceMessage : "";
+      response.displayText = this.configuration.defaultDisplayIsVoice === true && this.voiceMessage !== null ? this.voiceMessage : "";
     } else {
       response.displayText = this.chatBubbles.join(" ");
     }
 
-    log("Responding with ", response);
-
     return response;
-  }
-
-  protected getBaseBody(): any {
-    return {
-      data: {}
-    };
   }
 }
