@@ -28,7 +28,7 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
 
     // Set "displayText"
     if (this.chatBubbles === null) {
-      response.displayText = this.configuration.defaultDisplayIsVoice === true && this.voiceMessage !== null ? this.voiceMessage : "";
+      response.displayText = this.configuration.defaultDisplayIsVoice === true && this.voiceMessage !== null ? undefined : "";
     } else {
       response.displayText = this.chatBubbles.join(" ");
     }
