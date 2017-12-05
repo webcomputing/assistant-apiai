@@ -1,3 +1,6 @@
+0.2.1
+- sets default display to undefined to use platform standard, which is voice
+
 0.2.0
 - adds authenticationHeaders support and configuration (now required!)
 - removes shouldEndSession from data hash going to api.ai
