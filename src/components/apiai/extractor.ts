@@ -36,7 +36,9 @@ export class Extractor implements unifierInterfaces.RequestConversationExtractor
     } else {
       // For each configured header field, check if the given value of this header is equal the configured value
       const headersAreValid = Object.keys(this.configuration.authenticationHeaders).filter(headerKey => 
-        context.headers[headerKey] !== this.configuration.authenticationHeaders[headerKey]
+        context.headers[headerKey] !== this.configuration.authenticationHeaders[headerKey] &&
+        context.headers[headerKey.toLowerCase()] !== this.configuration.authenticationHeaders[headerKey] &&
+        context.headers[headerKey.toUpperCase()] !== this.configuration.authenticationHeaders[headerKey]
       ).length === 0;
 
       if (headersAreValid) {

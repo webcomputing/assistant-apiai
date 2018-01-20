@@ -1,6 +1,6 @@
 {
   "name": "assistant-apiai",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Enables integration of api.ai into AssistantJS. Also needed for Google Assistant!",
   "scripts": {
     "test": "jasmine-ts spec/**/*.spec.ts"
