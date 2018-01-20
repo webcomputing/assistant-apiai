@@ -14,9 +14,9 @@ describe("Handler", function() {
     });
   });
 
-  it("sets voice message as display text per default", function() {
+  it("sets voice message as display text per default (by using 'undefined', which makes dialogflow apply this default)", function() {
     return apiaiHelper.pretendIntentCalled("test").then(handler => {
-      expect((handler as any).getBody().displayText).toBe("Hello from api.ai!");
+      expect((handler as any).getBody().displayText).toBeUndefined();
     });
   });
 
