@@ -54,6 +54,28 @@ describe("this.extractor", function() {
         return this.extractor.fits(this.context).then(result => expect(result).toBeFalsy());
       });
     });
+
+    describe("with lowercase authentication headers", function() {
+      beforeEach(function() {
+        delete this.context.headers.secretHeader1;
+        this.context.headers.secretheader1 = "value1";
+      });
+
+      it("still returns true", function() {
+        return this.extractor.fits(this.context).then(result => expect(result).toBeTruthy());
+      });
+    });
+
+    describe("with uppercase authentication headers", function() {
+      beforeEach(function() {
+        delete this.context.headers.secretHeader1;
+        this.context.headers.SECRETHEADER1 = "value1";
+      });
+
+      it("still returns true", function() {
+        return this.extractor.fits(this.context).then(result => expect(result).toBeTruthy());
+      });
+    });
   });
 
   describe("extract", function() {
