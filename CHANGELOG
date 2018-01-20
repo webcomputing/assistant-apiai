@@ -1,3 +1,6 @@
+0.2.2
+- bugfix: since dialogflow always send header keys as lowercase strings, assistant-apiai now handles header keys as case-insensitive
+
 0.2.1
 - sets default display to undefined to use platform standard, which is voice
 
