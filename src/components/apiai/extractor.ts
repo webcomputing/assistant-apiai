@@ -1,4 +1,4 @@
-import { unifierInterfaces, rootInterfaces } from "assistant-source";
+import { RequestExtractor, RequestContext, intent, GenericIntent } from "assistant-source";
 import { injectable, inject } from "inversify";
 import { Component } from "inversify-components";
 
@@ -7,7 +7,7 @@ import { apiaiToGenericIntent } from "./intent-dict";
 import { log } from "../../global";
 
 @injectable()
-export class Extractor implements unifierInterfaces.RequestConversationExtractor {
+export class Extractor implements RequestExtractor {
   public component: Component;
   private configuration: Configuration;
 
@@ -16,7 +16,7 @@ export class Extractor implements unifierInterfaces.RequestConversationExtractor
     this.configuration = componentMeta.configuration as Configuration;
   }
 
-  async fits(context: rootInterfaces.RequestContext): Promise<boolean> {
+  async fits(context: RequestContext): Promise<boolean> {
     // 1) Check if request format is o.k.
     if (!(
       context.path === this.configuration.route && 
@@ -50,11 +50,11 @@ export class Extractor implements unifierInterfaces.RequestConversationExtractor
     }
   }
 
-  async extract(context: rootInterfaces.RequestContext): Promise<Extraction> {
+  async extract(context: RequestContext): Promise<Extraction> {
     log("Extracting request on api.ai...");
 
     return {
-      component: this.component,
+      platform: this.component.name,
       sessionID: this.getSessionID(context),
       intent: this.getIntent(context),
       entities: this.getEntities(context),
@@ -63,14 +63,14 @@ export class Extractor implements unifierInterfaces.RequestConversationExtractor
     };
   }
 
-  protected getSessionID(context: rootInterfaces.RequestContext) {
+  protected getSessionID(context: RequestContext) {
     return "apiai-" + context.body.sessionId;
   }
 
-  protected getIntent(context: rootInterfaces.RequestContext): unifierInterfaces.intent {
+  protected getIntent(context: RequestContext): intent {
     if (typeof(context.body.result) === "undefined" || typeof(context.body.result.metadata) === "undefined" 
       || typeof(context.body.result.metadata.intentName) !== "string") {
-        return unifierInterfaces.GenericIntent.Unhandled;
+        return GenericIntent.Unhandled;
     }
 
     let genericIntent = this.getGenericIntent(context);
@@ -79,7 +79,7 @@ export class Extractor implements unifierInterfaces.RequestConversationExtractor
     return context.body.result.metadata.intentName;
   }
 
-  protected getEntities(context: rootInterfaces.RequestContext) {
+  protected getEntities(context: RequestContext) {
     let request = context.body;
     if (typeof(request.result) !== "undefined") {
       if (typeof(request.result.parameters) !== "undefined") {
@@ -95,20 +95,20 @@ export class Extractor implements unifierInterfaces.RequestConversationExtractor
     return {};
   }
 
-  protected getLanguage(context: rootInterfaces.RequestContext): string {
+  protected getLanguage(context: RequestContext): string {
     return context.body.lang;
   }
 
   /* Returns GenericIntent if request is a GenericIntent, or null, if not */
-  protected getGenericIntent(context: rootInterfaces.RequestContext): unifierInterfaces.GenericIntent | null {
+  protected getGenericIntent(context: RequestContext): GenericIntent | null {
     return Extractor.makeIntentStringToGenericIntent(context.body.result.metadata.intentName);
   }
 
-  protected getSpokenText(context: rootInterfaces.RequestContext): string {
+  protected getSpokenText(context: RequestContext): string {
     return context.body.result.resolvedQuery;
   }
 
-  static makeIntentStringToGenericIntent(intent: string): unifierInterfaces.GenericIntent | null {
+  static makeIntentStringToGenericIntent(intent: string): GenericIntent | null {
     return apiaiToGenericIntent.hasOwnProperty(intent) ? apiaiToGenericIntent[intent] : null;
   }
 }

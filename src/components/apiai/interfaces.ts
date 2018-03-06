@@ -1,4 +1,4 @@
-import { unifierInterfaces } from "assistant-source";
+import { MinimalRequestExtraction, OptionalExtractions, MinimalResponseHandler, OptionalHandlerFeatures } from "assistant-source";
 
 export interface OptionalConfiguration {
   /** Route for api.ai requests, default: '/apiai */
@@ -23,12 +23,12 @@ export interface Configuration extends OptionalConfiguration {
 };
 
 export interface Extraction extends 
-  unifierInterfaces.MinimalRequestExtraction,
-  unifierInterfaces.OptionalExtractions.SpokenTextExtraction {}
+  MinimalRequestExtraction,
+  OptionalExtractions.SpokenTextExtraction {}
 
 export interface HandlerInterface extends
-  unifierInterfaces.MinimalResponseHandler,
-  unifierInterfaces.OptionalHandlerFeatures.GUI.ChatBubble {
+  MinimalResponseHandler,
+  OptionalHandlerFeatures.GUI.ChatBubble {
     getBody(): {
       data: any;
       speech?: string;

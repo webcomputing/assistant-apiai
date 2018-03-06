@@ -1,26 +1,27 @@
 import { Component } from "inversify-components";
-import { SpecSetup, unifierInterfaces, rootInterfaces } from "assistant-source";
+import { SpecSetup, PlatformSpecHelper, intent, RequestContext, } from "assistant-source";
 
 import { Extraction, HandlerInterface } from "./components/apiai/interfaces";
 import { ApiAiHandle } from "./components/apiai/handle";
 
-export class SpecHelper implements unifierInterfaces.PlatformSpecHelper {
+export class SpecHelper implements PlatformSpecHelper {
   specSetup: SpecSetup
 
   constructor(assistantSpecSetup: SpecSetup) {
     this.specSetup = assistantSpecSetup;
   }
 
-  async pretendIntentCalled(intent: unifierInterfaces.intent, autoStart = true, additionalExtractions = {}, additionalContext = {}): Promise<HandlerInterface> {
+  async pretendIntentCalled(intent: intent, autoStart = true, additionalExtractions = {}, additionalContext = {}): Promise<HandlerInterface> {
     let extraction: Extraction = Object.assign({
-      component: this.specSetup.setup.container.inversifyInstance.get<Component>("meta:component//apiai"),
+      platform: "apiai",
       intent: intent,
       sessionID: "apiai-mock-session-id",
       language: "en",
       spokenText: "this is the spoken text"
     }, additionalExtractions);
 
-    let context: rootInterfaces.RequestContext = Object.assign({
+    let context: RequestContext = Object.assign({
+      id: 'my-request-id',
       method: 'POST',
       path: '/apiai',
       body: {},

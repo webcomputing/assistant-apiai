@@ -1,4 +1,4 @@
-import { unifierInterfaces } from "assistant-source";
+import { GenericIntent } from "assistant-source";
 
 // Taken from: http://stackoverflow.com/questions/23013573/swap-key-with-value-json
 let swap = function(json) {
@@ -9,13 +9,13 @@ let swap = function(json) {
   return ret;
 };
 
-export const apiaiToGenericIntent: {[name: string]: unifierInterfaces.GenericIntent} = {
-  "yesGenericIntent": unifierInterfaces.GenericIntent.Yes,
-  "noGenericIntent": unifierInterfaces.GenericIntent.No,
-  "helpGenericIntent": unifierInterfaces.GenericIntent.Help,
-  "cancelGenericIntent": unifierInterfaces.GenericIntent.Cancel,
-  "stopGenericIntent": unifierInterfaces.GenericIntent.Stop,
-  "invokeGenericIntent": unifierInterfaces.GenericIntent.Invoke
+export const apiaiToGenericIntent: {[name: string]: GenericIntent} = {
+  "yesGenericIntent": GenericIntent.Yes,
+  "noGenericIntent": GenericIntent.No,
+  "helpGenericIntent": GenericIntent.Help,
+  "cancelGenericIntent": GenericIntent.Cancel,
+  "stopGenericIntent": GenericIntent.Stop,
+  "invokeGenericIntent": GenericIntent.Invoke
 };
 
 export const genericIntentToApiai: {[intent: number]: string} = swap(apiaiToGenericIntent);

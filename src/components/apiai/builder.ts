@@ -3,17 +3,17 @@ import { Component } from "inversify-components";
 import * as fs from "fs";
 import { v4 as uuid } from "uuid";
 import * as archiver from "archiver";
-import { unifierInterfaces } from "assistant-source";
+import { PlatformGenerator, GenericIntent } from "assistant-source";
 
 import { genericIntentToApiai } from "./intent-dict";
 import { Configuration } from "./interfaces";
 
 @injectable()
-export class Builder implements unifierInterfaces.PlatformGenerator {
+export class Builder implements PlatformGenerator.Extension {
   @inject("meta:component//apiai")
   private component: Component;
 
-  execute(language: string, buildDir: string, intentConfigurations: unifierInterfaces.GenerateIntentConfiguration[], parameterMapping: unifierInterfaces.GeneratorEntityMapping) {
+  execute(language: string, buildDir: string, intentConfigurations: PlatformGenerator.IntentConfiguration[], parameterMapping: PlatformGenerator.EntityMapping) {
     let currentBuildDir = buildDir + "/apiai";
     let intentDirectory = currentBuildDir + "/intents";
 
@@ -48,7 +48,7 @@ export class Builder implements unifierInterfaces.PlatformGenerator {
   /** Returns Intent Schema for Amazon Alexa Config
    * @param preparedIntentConfiguration: Result of prepareConfiguration()
    */
-  buildIntents(preparedIntentConfiguration: PreparedIntentConfiguration[], parameterMapping: unifierInterfaces.GeneratorEntityMapping) {
+  buildIntents(preparedIntentConfiguration: PreparedIntentConfiguration[], parameterMapping: PlatformGenerator.EntityMapping) {
     return preparedIntentConfiguration.map(config => {
       return {
         id: uuid(),
@@ -106,7 +106,7 @@ export class Builder implements unifierInterfaces.PlatformGenerator {
    * @param utterance: Utterance string
    * @param parameterMapping: Mapping of parameters
    */
-  buildUtterance(utterance: string, parameterMapping: unifierInterfaces.GeneratorEntityMapping) {
+  buildUtterance(utterance: string, parameterMapping: PlatformGenerator.EntityMapping) {
     let utteranceData: {}[] = [];
     let utteranceSplits = utterance.split(/\{(\w+)?\}/g).filter((element, index) => index % 2 === 0);
     let utteranceParams = utterance.match(/\{(\w+)?\}/g);
@@ -140,9 +140,9 @@ export class Builder implements unifierInterfaces.PlatformGenerator {
   }
 
   /** Returns BuildIntentConfiguration[] but with all unspeakable intents filtered out. Checks all other platform intents for having utterances defined. */
-  prepareConfiguration(intentConfigurations: unifierInterfaces.GenerateIntentConfiguration[]): PreparedIntentConfiguration[] {
+  prepareConfiguration(intentConfigurations: PlatformGenerator.IntentConfiguration[]): PreparedIntentConfiguration[] {
     // Leave out unspeakable Intent
-    let withoutUnspeakable = intentConfigurations.filter(config => typeof(config.intent) === "string" || unifierInterfaces.GenericIntent.isSpeakable(config.intent));
+    let withoutUnspeakable = intentConfigurations.filter(config => typeof(config.intent) === "string" || GenericIntent.isSpeakable(config.intent));
 
     // Convert all platform intents to apiai strings
     let preparedSet = withoutUnspeakable
@@ -166,13 +166,13 @@ export class Builder implements unifierInterfaces.PlatformGenerator {
     return withoutUndefinedUtterances.concat([ { intent: "invokeGenericIntent", entities: [], utterances: [] } ]);
   }
 
-  private makeIntentParameters(parameters: string[], parameterMapping: unifierInterfaces.GeneratorEntityMapping): { name: string, dataType: string, value: string }[] {
+  private makeIntentParameters(parameters: string[], parameterMapping: PlatformGenerator.EntityMapping): { name: string, dataType: string, value: string }[] {
     return parameters.map(name => {
       return { name: name, dataType: this.getParameterTypeFor(name, parameterMapping), value: "$" + name };
     });
   }
 
-  private getParameterTypeFor(parameterName: string, parameterMapping: unifierInterfaces.GeneratorEntityMapping) {
+  private getParameterTypeFor(parameterName: string, parameterMapping: PlatformGenerator.EntityMapping) {
     let config = this.component.configuration as Configuration;
 
     if (typeof(config.entities) === "undefined" || typeof(config.entities[parameterMapping[parameterName]]) === "undefined")
@@ -182,6 +182,6 @@ export class Builder implements unifierInterfaces.PlatformGenerator {
   }
 }
 
-export interface PreparedIntentConfiguration extends unifierInterfaces.GenerateIntentConfiguration {
+export interface PreparedIntentConfiguration extends PlatformGenerator.IntentConfiguration {
   intent: string;
 }
