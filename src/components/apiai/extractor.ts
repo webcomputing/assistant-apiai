@@ -1,18 +1,20 @@
-import { RequestExtractor, RequestContext, intent, GenericIntent } from "assistant-source";
+import { RequestExtractor, RequestContext, intent, GenericIntent, Logger, injectionNames } from "assistant-source";
 import { injectable, inject } from "inversify";
 import { Component } from "inversify-components";
 
 import { Configuration } from "./private-interfaces";
 import { Extraction } from "./public-interfaces";
 import { apiaiToGenericIntent } from "./intent-dict";
-import { log } from "../../global";
 
 @injectable()
 export class Extractor implements RequestExtractor {
   public component: Component;
   private configuration: Configuration.Runtime;
 
-  constructor(@inject("meta:component//apiai") componentMeta: Component<Configuration.Runtime>) {
+  constructor(
+    @inject("meta:component//apiai") componentMeta: Component<Configuration.Runtime>,
+    @inject(injectionNames.logger) private logger: Logger
+  ) {
     this.component = componentMeta;
     this.configuration = componentMeta.configuration;
   }
@@ -45,14 +47,14 @@ export class Extractor implements RequestExtractor {
       if (headersAreValid) {
         return true;
       } else {
-        log("Given headers did not match configured authenticationHeaders. Aborting.");
+        this.logger.warn("Given headers did not match configured authenticationHeaders. Aborting.", { requestId: context.id });
         return false;
       }
     }
   }
 
   async extract(context: RequestContext): Promise<Extraction> {
-    log("Extracting request on api.ai...");
+    this.logger.info("Extracting request on api.ai...", { requestId: context.id });
 
     return {
       platform: this.component.name,

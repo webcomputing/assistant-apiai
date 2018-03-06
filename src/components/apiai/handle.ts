@@ -3,7 +3,6 @@ import { ExecutableExtension, Component } from "inversify-components";
 import { AbstractResponseHandler, ResponseCallback, RequestContext } from "assistant-source"
 import { HandlerInterface } from "./public-interfaces";
 import { Configuration } from "./private-interfaces";
-import { log } from "../../global";
 
 @injectable()
 export class ApiAiHandle extends AbstractResponseHandler implements HandlerInterface {
