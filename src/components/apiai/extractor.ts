@@ -1,8 +1,8 @@
-import { RequestExtractor, RequestContext, intent, GenericIntent, Logger, injectionNames } from "assistant-source";
+import { RequestExtractor, RequestContext, intent, GenericIntent, Logger, injectionNames, ComponentSpecificLoggerFactory } from "assistant-source";
 import { injectable, inject } from "inversify";
 import { Component } from "inversify-components";
 
-import { Configuration } from "./private-interfaces";
+import { Configuration, COMPONENT_NAME } from "./private-interfaces";
 import { Extraction } from "./public-interfaces";
 import { apiaiToGenericIntent } from "./intent-dict";
 
@@ -10,13 +10,15 @@ import { apiaiToGenericIntent } from "./intent-dict";
 export class Extractor implements RequestExtractor {
   public component: Component;
   private configuration: Configuration.Runtime;
+  private logger: Logger;
 
   constructor(
     @inject("meta:component//apiai") componentMeta: Component<Configuration.Runtime>,
-    @inject(injectionNames.logger) private logger: Logger
+    @inject(injectionNames.componentSpecificLoggerFactory) logFactory: ComponentSpecificLoggerFactory
   ) {
     this.component = componentMeta;
     this.configuration = componentMeta.configuration;
+    this.logger = logFactory(COMPONENT_NAME, "root");
   }
 
   async fits(context: RequestContext): Promise<boolean> {
@@ -47,17 +49,17 @@ export class Extractor implements RequestExtractor {
       ).length === 0;
 
       if (headersAreValid) {
-        this.logger.debug("Dialogflow: Request matched for dialogflow.", { requestId: context.id });
+        this.logger.debug("Request matched for dialogflow.", { requestId: context.id });
         return true;
       } else {
-        this.logger.warn("Dialogflow: Given headers did not match configured authenticationHeaders. Aborting.", { requestId: context.id });
+        this.logger.warn("Given headers did not match configured authenticationHeaders. Aborting.", { requestId: context.id });
         return false;
       }
     }
   }
 
   async extract(context: RequestContext): Promise<Extraction> {
-    this.logger.info("Dialogflow: Extracting dialogflow request.", { requestId: context.id });
+    this.logger.info("Extracting dialogflow request.", { requestId: context.id });
 
     return {
       platform: this.component.name,

@@ -1,7 +1,7 @@
 import { ComponentDescriptor } from "inversify-components";
 import { PlatformGenerator, RequestExtractor } from "assistant-source";
 import { Extractor } from "./extractor";
-import { Configuration } from "./private-interfaces";
+import { Configuration, COMPONENT_NAME } from "./private-interfaces";
 import { ApiAiHandle } from "./handle";
 import { Builder } from "./builder";
 
@@ -16,7 +16,7 @@ export const defaultConfiguration: Configuration.Defaults = {
 };
 
 export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
-  name: "apiai",
+  name: COMPONENT_NAME,
   defaultConfiguration: defaultConfiguration,
   bindings: {
     root: (bindService, lookupService) => {
