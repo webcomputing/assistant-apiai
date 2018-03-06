@@ -2,18 +2,19 @@ import { RequestExtractor, RequestContext, intent, GenericIntent } from "assista
 import { injectable, inject } from "inversify";
 import { Component } from "inversify-components";
 
-import { Configuration, Extraction } from "./interfaces";
+import { Configuration } from "./private-interfaces";
+import { Extraction } from "./public-interfaces";
 import { apiaiToGenericIntent } from "./intent-dict";
 import { log } from "../../global";
 
 @injectable()
 export class Extractor implements RequestExtractor {
   public component: Component;
-  private configuration: Configuration;
+  private configuration: Configuration.Runtime;
 
-  constructor(@inject("meta:component//apiai") componentMeta: Component) {
+  constructor(@inject("meta:component//apiai") componentMeta: Component<Configuration.Runtime>) {
     this.component = componentMeta;
-    this.configuration = componentMeta.configuration as Configuration;
+    this.configuration = componentMeta.configuration;
   }
 
   async fits(context: RequestContext): Promise<boolean> {

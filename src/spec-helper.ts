@@ -1,7 +1,7 @@
 import { Component } from "inversify-components";
 import { SpecSetup, PlatformSpecHelper, intent, RequestContext, } from "assistant-source";
 
-import { Extraction, HandlerInterface } from "./components/apiai/interfaces";
+import { Extraction, HandlerInterface } from "./components/apiai/public-interfaces";
 import { ApiAiHandle } from "./components/apiai/handle";
 
 export class SpecHelper implements PlatformSpecHelper {

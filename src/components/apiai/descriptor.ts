@@ -1,11 +1,11 @@
 import { ComponentDescriptor } from "inversify-components";
 import { PlatformGenerator, RequestExtractor } from "assistant-source";
 import { Extractor } from "./extractor";
-import { OptionalConfiguration } from "./interfaces";
+import { Configuration } from "./private-interfaces";
 import { ApiAiHandle } from "./handle";
 import { Builder } from "./builder";
 
-export const defaultConfiguration: OptionalConfiguration = {
+export const defaultConfiguration: Configuration.Defaults = {
   route: "/apiai",
   entities: {
     number: "@sys.number",
@@ -15,7 +15,7 @@ export const defaultConfiguration: OptionalConfiguration = {
   defaultDisplayIsVoice: true
 };
 
-export let descriptor: ComponentDescriptor = {
+export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
   name: "apiai",
   defaultConfiguration: defaultConfiguration,
   bindings: {

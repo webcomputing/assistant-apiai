@@ -6,12 +6,12 @@ import * as archiver from "archiver";
 import { PlatformGenerator, GenericIntent } from "assistant-source";
 
 import { genericIntentToApiai } from "./intent-dict";
-import { Configuration } from "./interfaces";
+import { Configuration } from "./private-interfaces";
 
 @injectable()
 export class Builder implements PlatformGenerator.Extension {
   @inject("meta:component//apiai")
-  private component: Component;
+  private component: Component<Configuration.Runtime>;
 
   execute(language: string, buildDir: string, intentConfigurations: PlatformGenerator.IntentConfiguration[], parameterMapping: PlatformGenerator.EntityMapping) {
     let currentBuildDir = buildDir + "/apiai";
@@ -173,7 +173,7 @@ export class Builder implements PlatformGenerator.Extension {
   }
 
   private getParameterTypeFor(parameterName: string, parameterMapping: PlatformGenerator.EntityMapping) {
-    let config = this.component.configuration as Configuration;
+    let config = this.component.configuration;
 
     if (typeof(config.entities) === "undefined" || typeof(config.entities[parameterMapping[parameterName]]) === "undefined")
       throw Error("Missing apiai configured type for entity '" + parameterName + "' (as " + parameterMapping[parameterName] + ").");
