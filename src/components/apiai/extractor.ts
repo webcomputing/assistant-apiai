@@ -20,6 +20,8 @@ export class Extractor implements RequestExtractor {
   }
 
   async fits(context: RequestContext): Promise<boolean> {
+    this.logger.debug("Checking request for dialogflow...", { requestId: context.id });
+
     // 1) Check if request format is o.k.
     if (!(
       context.path === this.configuration.route && 
@@ -45,16 +47,17 @@ export class Extractor implements RequestExtractor {
       ).length === 0;
 
       if (headersAreValid) {
+        this.logger.debug("Dialogflow: Request matched for dialogflow.", { requestId: context.id });
         return true;
       } else {
-        this.logger.warn("Given headers did not match configured authenticationHeaders. Aborting.", { requestId: context.id });
+        this.logger.warn("Dialogflow: Given headers did not match configured authenticationHeaders. Aborting.", { requestId: context.id });
         return false;
       }
     }
   }
 
   async extract(context: RequestContext): Promise<Extraction> {
-    this.logger.info("Extracting request on api.ai...", { requestId: context.id });
+    this.logger.info("Dialogflow: Extracting dialogflow request.", { requestId: context.id });
 
     return {
       platform: this.component.name,
