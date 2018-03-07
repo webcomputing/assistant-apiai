@@ -1,23 +1,23 @@
 import { inject, injectable } from "inversify";
 import { ExecutableExtension, Component } from "inversify-components";
-import { unifierInterfaces, rootInterfaces, AbstractResponseHandler } from "assistant-source"
-import { HandlerInterface, Configuration } from "./interfaces";
-import { log } from "../../global";
+import { AbstractResponseHandler, ResponseCallback, RequestContext } from "assistant-source"
+import { HandlerInterface } from "./public-interfaces";
+import { Configuration } from "./private-interfaces";
 
 @injectable()
 export class ApiAiHandle extends AbstractResponseHandler implements HandlerInterface {
   chatBubbles: string[] | null = null;
-  responseCallback: rootInterfaces.ResponseCallback;
+  responseCallback: ResponseCallback;
   killSession: () => Promise<void>;
-  configuration: Configuration;
+  configuration: Configuration.Runtime;
   
   constructor(
-    @inject("core:root:current-request-context") extraction: rootInterfaces.RequestContext,
+    @inject("core:root:current-request-context") extraction: RequestContext,
     @inject("core:unifier:current-kill-session-promise") killSession: () => Promise<void>,
-    @inject("meta:component//apiai") componentMeta: Component
+    @inject("meta:component//apiai") componentMeta: Component<Configuration.Runtime>
   ) {
     super(extraction, killSession);
-    this.configuration = componentMeta.configuration as Configuration;
+    this.configuration = componentMeta.configuration;
   }
 
   getBody() {

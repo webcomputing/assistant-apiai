@@ -1,10 +1,11 @@
-import { unifierInterfaces, rootInterfaces } from "assistant-source";
+import {  } from "assistant-source";
+import { componentInterfaces } from "assistant-source/lib/components/unifier/private-interfaces";
 import { Extractor } from "../src/components/apiai/extractor";
 import { validRequestContext } from "./support/mocks/request-context";
 
 describe("this.extractor", function() {
   beforeEach(function() {
-    this.extractor = this.container.inversifyInstance.get(unifierInterfaces.componentInterfaces.requestProcessor);
+    this.extractor = this.container.inversifyInstance.get(componentInterfaces.requestProcessor);
     this.context = JSON.parse(JSON.stringify(validRequestContext));
   });
 
@@ -87,7 +88,7 @@ describe("this.extractor", function() {
         intent: "myIntent",
         entities: {"entityOne": "entityValue1", "entityTwo": "entityValue2"},
         language: "en",
-        component: this.extractor.component,
+        platform: this.extractor.component.name,
         spokenText: "my spoken query"
       });
       done()
