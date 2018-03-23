@@ -1,6 +1,6 @@
-import { inject, injectable } from "inversify";
+import { inject, injectable, optional, multiInject } from "inversify";
 import { ExecutableExtension, Component } from "inversify-components";
-import { AbstractResponseHandler, ResponseCallback, RequestContext } from "assistant-source"
+import { AbstractResponseHandler, ResponseCallback, RequestContext, ResponseHandlerExtensions } from "assistant-source"
 import { HandlerInterface } from "./public-interfaces";
 import { Configuration } from "./private-interfaces";
 
@@ -14,9 +14,10 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
   constructor(
     @inject("core:root:current-request-context") extraction: RequestContext,
     @inject("core:unifier:current-kill-session-promise") killSession: () => Promise<void>,
-    @inject("meta:component//apiai") componentMeta: Component<Configuration.Runtime>
+    @inject("meta:component//apiai") componentMeta: Component<Configuration.Runtime>,
+    @inject("core:unifier:response-handler-extensions") responseHandlerExtensions: ResponseHandlerExtensions
   ) {
-    super(extraction, killSession);
+    super(extraction, killSession, responseHandlerExtensions);
     this.configuration = componentMeta.configuration;
   }
 
