@@ -11,11 +11,11 @@ export interface ApiaiConfigurationAttribute {
 
 export interface Extraction extends 
   MinimalRequestExtraction,
-  OptionalExtractions.SpokenTextExtraction {}
+  OptionalExtractions.SpokenText {}
 
 export interface HandlerInterface extends
   MinimalResponseHandler,
-  OptionalHandlerFeatures.GUI.ChatBubble {
+  OptionalHandlerFeatures.GUI.ChatBubbles {
     getBody(): {
       data: any;
       speech?: string;
