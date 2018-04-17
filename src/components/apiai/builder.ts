@@ -163,7 +163,7 @@ export class Builder implements PlatformGenerator.Extension {
     });
 
     // Return result, but also add the "invokeGenericIntent", which acts as a the "default welcome intent"
-    return withoutUndefinedUtterances.concat([ { intent: "invokeGenericIntent", entities: [], utterances: [] } ]);
+    return withoutUndefinedUtterances.concat([ { intent: "invokeGenericIntent", entities: [], utterances: [], entitySets: {} } ]);
   }
 
   private makeIntentParameters(parameters: string[], parameterMapping: PlatformGenerator.EntityMapping): { name: string, dataType: string, value: string }[] {
