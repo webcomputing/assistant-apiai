@@ -72,7 +72,7 @@ export class Extractor implements RequestExtractor {
   }
 
   protected getSessionID(context: RequestContext) {
-    return "apiai-" + context.body.sessionId;
+    return context.body.sessionId;
   }
 
   protected getIntent(context: RequestContext): intent {
