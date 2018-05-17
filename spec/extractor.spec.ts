@@ -84,12 +84,15 @@ describe("this.extractor", function() {
       this.extraction = await this.extractor.extract(this.context);
 
       expect(this.extraction).toEqual({
-        sessionID: "apiai-my-apiai-session-id",
+        sessionID: "my-apiai-session-id",
         intent: "myIntent",
         entities: {"entityOne": "entityValue1", "entityTwo": "entityValue2"},
         language: "en",
         platform: this.extractor.component.name,
-        spokenText: "my spoken query"
+        spokenText: "my spoken query",
+        additionalParameters: {
+          "key1": "value1"
+        }
       });
       done()
     });
