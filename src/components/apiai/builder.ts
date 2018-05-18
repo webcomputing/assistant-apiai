@@ -33,48 +33,73 @@ export class Builder implements PlatformGenerator.Extension {
 
     console.log("writing to files...");
     intents.forEach(intent =>  {
-      fs.writeFileSync(intentDirectory + "/" + intent.name + ".json", JSON.stringify(intent));
+      fs.writeFileSync(intentDirectory + "/" + intent.intent.name + ".json", JSON.stringify(intent.intent, null, 2));
+      if(intent.utterances && intent.utterances.length > 0) {
+        fs.writeFileSync(intentDirectory + "/" + intent.intent.name + "_usersays_"+ language + ".json", JSON.stringify(intent.utterances, null, 2));
+      }
     });
+    this.writePackageJSON(currentBuildDir)
+
 
     console.log("writing bundled zip...");
     let zip = archiver("zip");
     let output = fs.createWriteStream(currentBuildDir + "/bundle.zip");
     zip.pipe(output);
     zip.directory(intentDirectory + "/", "intents/");
+    zip.file(currentBuildDir+"/package.json", { name: 'package.json' });
     zip.finalize();
     console.log("=============          FINISHED.          =============");
   }
-
+  
   /** Returns Intent Schema for Amazon Alexa Config
    * @param preparedIntentConfiguration: Result of prepareConfiguration()
    */
   buildIntents(preparedIntentConfiguration: PreparedIntentConfiguration[], parameterMapping: PlatformGenerator.EntityMapping) {
     return preparedIntentConfiguration.map(config => {
-      return {
+      const intent =  {
         id: uuid(),
         name: config.intent,
-        userSays: config.utterances.map(utterance => this.buildUtterance(utterance, parameterMapping)),
         auto: true,
         contexts: [],
         responses: [
           {
             resetContexts: false,
-            affectedContxts: [],
+            affectedContexts: [],
             parameters: this.makeIntentParameters(config.entities, parameterMapping),
-            messages: [{ type: 0, speech: [] }]
+            messages: [{ type: 0, lang: "en", speech: [] }],
+            defaultResponsePlatforms: {},
+            speech: []
           }
         ],
+        priority: 500000,
         webhookUsed: true,
         webhookForSlotFilling: false,
+        lastUpdate: this.getUnixTime(),
         fallbackIntent: false,
         events: []
       };
+
+      const utterances = config.utterances.map(utterance => this.buildUtterance(utterance, parameterMapping));
+
+      const result = {intent, utterances}
+      return result;
     });
+  }
+
+  private getUnixTime(){
+    return Math.floor(new Date().getTime()/1000);
+  }
+
+  /**
+   * Write necessary package.json with version into folder
+   */
+  writePackageJSON(currentBuildDir: string){
+    fs.writeFileSync(currentBuildDir + "/package.json", JSON.stringify({version: "1.0.0"}, null, 2));
   }
 
   /** Returns  */
   buildDefaultIntent(): any {
-    return {
+    const intent = {
       "templates": [],
       "userSays": [],
       "id": uuid(),
@@ -100,6 +125,13 @@ export class Builder implements PlatformGenerator.Extension {
       "fallbackIntent": true,
       "events": []
     };
+
+    const utterances = [];
+
+    const result = {
+      intent, utterances
+    }
+    return result;
   }
 
   /** Returns single utterance json for intent schema
@@ -127,15 +159,16 @@ export class Builder implements PlatformGenerator.Extension {
 
     // Create resulting array in zip style
     for (let i = 0; i < utteranceSplits.length; i++) {
-      if (utteranceSplits[i].length > 0) utteranceData.push({ text: utteranceSplits[i] });
+      if (utteranceSplits[i].length > 0) utteranceData.push({ text: utteranceSplits[i], userDefined: false });
       if (typeof(utteranceParamObjects[i]) !== "undefined") utteranceData.push(utteranceParamObjects[i]);
     }
 
     return {
       id: uuid(),
-      count: 0,
+      data: utteranceData,
       isTemplate: false,
-      data: utteranceData
+      count: 0,
+      updated: this.getUnixTime()
     };
   }
 
