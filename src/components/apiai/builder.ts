@@ -140,14 +140,15 @@ export class Builder implements PlatformGenerator.Extension {
    */
   buildUtterance(utterance: string, parameterMapping: PlatformGenerator.EntityMapping) {
     let utteranceData: {}[] = [];
-    let utteranceSplits = utterance.split(/\{(\w+)?\}/g).filter((element, index) => index % 2 === 0);
-    let utteranceParams = utterance.match(/\{(\w+)?\}/g);
+    let utteranceSplits = utterance.split(/\{\w+?\|\w+?\}/g);
+    let utteranceParams = utterance.match(/\{(\w+)?\|(\w+)?\}/g);
+
 
     // Create array ob parameter objects
-    let utteranceParamObjects: {}[] = [];
+    let utteranceParamObjects: {text:string, alias: string, userDefined: boolean, meta: string}[] = [];
     if (utteranceParams !== null) {
       utteranceParamObjects = utteranceParams.map(parameter => {
-        parameter = parameter.replace(/\{|\}/g, "");
+        parameter = parameter.replace(/\{(\w+)\||\}/g, "");
         return {
           text: parameter,
           alias: parameter,
@@ -157,10 +158,18 @@ export class Builder implements PlatformGenerator.Extension {
       });
     }
 
+    console.log("utterance", utterance);
+    console.log("utteranceSplits", utteranceSplits);
+    console.log("utteranceParamObjects", utteranceParamObjects);
+
     // Create resulting array in zip style
     for (let i = 0; i < utteranceSplits.length; i++) {
-      if (utteranceSplits[i].length > 0) utteranceData.push({ text: utteranceSplits[i], userDefined: false });
-      if (typeof(utteranceParamObjects[i]) !== "undefined") utteranceData.push(utteranceParamObjects[i]);
+      if (utteranceSplits[i].length > 0){
+        utteranceData.push({ text: utteranceSplits[i], userDefined: false });
+      } 
+      if (typeof(utteranceParamObjects[i]) !== "undefined"){
+        utteranceData.push(utteranceParamObjects[i]);
+      } 
     }
 
     return {
