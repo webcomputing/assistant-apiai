@@ -158,10 +158,6 @@ export class Builder implements PlatformGenerator.Extension {
       });
     }
 
-    console.log("utterance", utterance);
-    console.log("utteranceSplits", utteranceSplits);
-    console.log("utteranceParamObjects", utteranceParamObjects);
-
     // Create resulting array in zip style
     for (let i = 0; i < utteranceSplits.length; i++) {
       if (utteranceSplits[i].length > 0){
@@ -208,9 +204,9 @@ export class Builder implements PlatformGenerator.Extension {
     return withoutUndefinedUtterances.concat([ { intent: "invokeGenericIntent", entities: [], utterances: [], entitySets: {} } ]);
   }
 
-  private makeIntentParameters(parameters: string[], parameterMapping: PlatformGenerator.EntityMapping): { name: string, dataType: string, value: string }[] {
+  private makeIntentParameters(parameters: string[], parameterMapping: PlatformGenerator.EntityMapping): { name: string, dataType: string, value: string, isList: boolean }[] {
     return parameters.map(name => {
-      return { name: name, dataType: this.getParameterTypeFor(name, parameterMapping), value: "$" + name };
+      return { name: name, dataType: this.getParameterTypeFor(name, parameterMapping), value: "$" + name, isList: false };
     });
   }
 
