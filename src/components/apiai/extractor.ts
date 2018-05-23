@@ -1,4 +1,4 @@
-import { RequestExtractor, RequestContext, intent, GenericIntent, Logger, injectionNames, ComponentSpecificLoggerFactory } from "assistant-source";
+import { RequestExtractor, RequestContext, intent, GenericIntent, Logger, injectionNames, ComponentSpecificLoggerFactory, OptionalExtractions } from "assistant-source";
 import { injectable, inject } from "inversify";
 import { Component } from "inversify-components";
 
@@ -67,12 +67,13 @@ export class Extractor implements RequestExtractor {
       intent: this.getIntent(context),
       entities: this.getEntities(context),
       language: this.getLanguage(context),
-      spokenText: this.getSpokenText(context)
+      spokenText: this.getSpokenText(context),
+      additionalParameters: this.getAdditionalParameters(context)
     };
   }
 
   protected getSessionID(context: RequestContext) {
-    return "apiai-" + context.body.sessionId;
+    return context.body.sessionId;
   }
 
   protected getIntent(context: RequestContext): intent {
@@ -114,6 +115,12 @@ export class Extractor implements RequestExtractor {
 
   protected getSpokenText(context: RequestContext): string {
     return context.body.result.resolvedQuery;
+  }
+
+  protected getAdditionalParameters(context: RequestContext): {[args: string]: any} {
+    return (context.body &&
+    context.body.originalRequest &&
+    context.body.originalRequest.data) || {};
   }
 
   static makeIntentStringToGenericIntent(intent: string): GenericIntent | null {

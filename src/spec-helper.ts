@@ -17,7 +17,8 @@ export class SpecHelper implements PlatformSpecHelper {
       intent: intent,
       sessionID: "apiai-mock-session-id",
       language: "en",
-      spokenText: "this is the spoken text"
+      spokenText: "this is the spoken text",
+      additionalParameters: {}
     }, additionalExtractions);
 
     let context: RequestContext = Object.assign({
