@@ -140,17 +140,18 @@ export class Builder implements PlatformGenerator.Extension {
    */
   buildUtterance(utterance: string, parameterMapping: PlatformGenerator.EntityMapping) {
     let utteranceData: {}[] = [];
-    let utteranceSplits = utterance.split(/\{\w+?\|\w+?\}/g);
-    let utteranceParams = utterance.match(/\{(\w+)?\|(\w+)?\}/g);
+    let utteranceSplits = utterance.split(/\{[A-Za-z0-9_äÄöÖüÜß]+?\|[A-Za-z0-9_äÄöÖüÜß]+?\}/g);
+    let utteranceParams = utterance.match(/\{([A-Za-z0-9_äÄöÖüÜß]+)?\|([A-Za-z0-9_äÄöÖüÜß]+)?\}/g);
 
 
     // Create array ob parameter objects
     let utteranceParamObjects: {text:string, alias: string, userDefined: boolean, meta: string}[] = [];
     if (utteranceParams !== null) {
       utteranceParamObjects = utteranceParams.map(parameter => {
-        parameter = parameter.replace(/\{(\w+)\||\}/g, "");
+        const parameterText = parameter.replace(/\{|\|([A-Za-z0-9_äÄöÖüÜß]+)\}/g, "");
+        parameter = parameter.replace(/\{([A-Za-z0-9_äÄöÖüÜß]+)\||\}/g, "");
         return {
-          text: parameter,
+          text: parameterText,
           alias: parameter,
           userDefined: true,
           meta: this.getParameterTypeFor(parameter, parameterMapping)
