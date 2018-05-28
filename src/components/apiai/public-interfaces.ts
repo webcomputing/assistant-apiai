@@ -14,7 +14,11 @@ export interface ApiaiConfigurationAttribute {
   apiai: ApiaiConfiguration;
 }
 
-export interface Extraction extends MinimalRequestExtraction, OptionalExtractions.Timestamp, OptionalExtractions.SpokenText {}
+export interface Extraction
+  extends MinimalRequestExtraction,
+    OptionalExtractions.SpokenText,
+    OptionalExtractions.Timestamp,
+    OptionalExtractions.AdditionalParameters {}
 
 export interface HandlerInterface extends MinimalResponseHandler, OptionalHandlerFeatures.GUI.ChatBubbles {
   getBody(): {

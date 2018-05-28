@@ -82,6 +82,7 @@ export class Extractor implements RequestExtractor {
       language: this.getLanguage(context),
       spokenText: this.getSpokenText(context),
       requestTimestamp: this.getRequestTimestamp(context),
+      additionalParameters: this.getAdditionalParameters(context),
     };
   }
 
@@ -134,6 +135,10 @@ export class Extractor implements RequestExtractor {
 
   protected getSpokenText(context: RequestContext): string {
     return context.body.result.resolvedQuery;
+  }
+
+  protected getAdditionalParameters(context: RequestContext): { [args: string]: any } {
+    return (context.body && context.body.originalRequest && context.body.originalRequest.data) || {};
   }
 
   static makeIntentStringToGenericIntent(intent: string): GenericIntent | null {

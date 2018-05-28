@@ -22,5 +22,10 @@ export const validRequestContext = {
         entityTwo: "entityValue2",
       },
     },
+    originalRequest: {
+      data: {
+        key1: "value1",
+      },
+    },
   },
 };

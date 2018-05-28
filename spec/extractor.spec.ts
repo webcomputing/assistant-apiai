@@ -94,6 +94,9 @@ describe("this.extractor", function() {
         requestTimestamp: "2017-06-24T16:00:18Z",
         platform: this.extractor.component.name,
         spokenText: "my spoken query",
+        additionalParameters: {
+          key1: "value1",
+        },
       });
       done();
     });
