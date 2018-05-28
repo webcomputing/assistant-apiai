@@ -87,7 +87,7 @@ describe("this.extractor", function() {
       this.extraction = await this.extractor.extract(this.context);
 
       expect(this.extraction).toEqual({
-        sessionID: "apiai-my-apiai-session-id",
+        sessionID: "my-apiai-session-id",
         intent: "myIntent",
         entities: { entityOne: "entityValue1", entityTwo: "entityValue2" },
         language: "en",

@@ -76,7 +76,7 @@ export class Extractor implements RequestExtractor {
 
     return {
       platform: this.component.name,
-      sessionID: `apiai-${this.getSessionID(context)}`,
+      sessionID: this.getSessionID(context),
       intent: this.getIntent(context),
       entities: this.getEntities(context),
       language: this.getLanguage(context),
