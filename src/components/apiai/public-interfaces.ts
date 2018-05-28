@@ -1,4 +1,9 @@
-import { MinimalRequestExtraction, OptionalExtractions, MinimalResponseHandler, OptionalHandlerFeatures } from "assistant-source";
+import {
+  MinimalRequestExtraction,
+  MinimalResponseHandler,
+  OptionalExtractions,
+  OptionalHandlerFeatures
+  } from "assistant-source";
 import { Configuration } from "./private-interfaces";
 
 /** Configuration of apiai component */
@@ -11,7 +16,8 @@ export interface ApiaiConfigurationAttribute {
 
 export interface Extraction extends 
   MinimalRequestExtraction,
-  OptionalExtractions.SpokenText {}
+  OptionalExtractions.Timestamp,
+  OptionalExtractions.SpokenText { }
 
 export interface HandlerInterface extends
   MinimalResponseHandler,

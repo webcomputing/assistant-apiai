@@ -1,7 +1,7 @@
-import {  } from "assistant-source";
 import { componentInterfaces } from "assistant-source/lib/components/unifier/private-interfaces";
 import { Extractor } from "../src/components/apiai/extractor";
 import { validRequestContext } from "./support/mocks/request-context";
+import {  } from "assistant-source";
 
 describe("this.extractor", function() {
   beforeEach(function() {
@@ -88,6 +88,7 @@ describe("this.extractor", function() {
         intent: "myIntent",
         entities: {"entityOne": "entityValue1", "entityTwo": "entityValue2"},
         language: "en",
+        requestTimestamp: "2017-06-24T16:00:18Z",
         platform: this.extractor.component.name,
         spokenText: "my spoken query"
       });

@@ -12,6 +12,7 @@ export const validRequestContext = {
   body: { 
     sessionId: 'my-apiai-session-id',
     lang: 'en',
+    timestamp: '2017-06-24T16:00:18Z',
     result: {
       resolvedQuery: 'my spoken query',
       metadata: {

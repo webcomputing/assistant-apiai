@@ -1,8 +1,18 @@
-import { inject, injectable, optional, multiInject } from "inversify";
-import { ExecutableExtension, Component } from "inversify-components";
-import { AbstractResponseHandler, ResponseCallback, RequestContext, ResponseHandlerExtensions } from "assistant-source"
-import { HandlerInterface } from "./public-interfaces";
+import {
+  AbstractResponseHandler,
+  RequestContext,
+  ResponseCallback,
+  ResponseHandlerExtensions
+  } from "assistant-source";
+import {
+  inject,
+  injectable,
+  multiInject,
+  optional
+  } from "inversify";
+import { Component, ExecutableExtension } from "inversify-components";
 import { Configuration } from "./private-interfaces";
+import { HandlerInterface } from "./public-interfaces";
 
 @injectable()
 export class ApiAiHandle extends AbstractResponseHandler implements HandlerInterface {

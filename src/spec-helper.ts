@@ -1,8 +1,8 @@
 import { Component } from "inversify-components";
+import { ApiAiHandle } from "./components/apiai/handle";
+import { Extraction, HandlerInterface } from "./components/apiai/public-interfaces";
 import { SpecSetup, PlatformSpecHelper, intent, RequestContext, } from "assistant-source";
 
-import { Extraction, HandlerInterface } from "./components/apiai/public-interfaces";
-import { ApiAiHandle } from "./components/apiai/handle";
 
 export class SpecHelper implements PlatformSpecHelper {
   specSetup: SpecSetup
@@ -17,7 +17,8 @@ export class SpecHelper implements PlatformSpecHelper {
       intent: intent,
       sessionID: "apiai-mock-session-id",
       language: "en",
-      spokenText: "this is the spoken text"
+      spokenText: "this is the spoken text",
+      requestTimestamp: "2017-06-24T16:00:18Z"
     }, additionalExtractions);
 
     let context: RequestContext = Object.assign({
