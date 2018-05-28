@@ -3,8 +3,8 @@ import { validRequestContext } from "./request-context";
 
 export const configuration: ApiaiConfiguration = {
   authenticationHeaders: {
-    "secretHeader1": "value1",
-    "secretHeader2": "value2"
+    secretHeader1: "value1",
+    secretHeader2: "value2",
   },
-  route: validRequestContext.path
+  route: validRequestContext.path,
 };

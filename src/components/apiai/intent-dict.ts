@@ -9,13 +9,13 @@ let swap = function(json) {
   return ret;
 };
 
-export const apiaiToGenericIntent: {[name: string]: GenericIntent} = {
-  "yesGenericIntent": GenericIntent.Yes,
-  "noGenericIntent": GenericIntent.No,
-  "helpGenericIntent": GenericIntent.Help,
-  "cancelGenericIntent": GenericIntent.Cancel,
-  "stopGenericIntent": GenericIntent.Stop,
-  "invokeGenericIntent": GenericIntent.Invoke
+export const apiaiToGenericIntent: { [name: string]: GenericIntent } = {
+  yesGenericIntent: GenericIntent.Yes,
+  noGenericIntent: GenericIntent.No,
+  helpGenericIntent: GenericIntent.Help,
+  cancelGenericIntent: GenericIntent.Cancel,
+  stopGenericIntent: GenericIntent.Stop,
+  invokeGenericIntent: GenericIntent.Invoke,
 };
 
-export const genericIntentToApiai: {[intent: number]: string} = swap(apiaiToGenericIntent);
+export const genericIntentToApiai: { [intent: number]: string } = swap(apiaiToGenericIntent);
