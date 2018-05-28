@@ -11,7 +11,8 @@ export interface ApiaiConfigurationAttribute {
 
 export interface Extraction extends 
   MinimalRequestExtraction,
-  OptionalExtractions.SpokenText {}
+  OptionalExtractions.SpokenText,
+  OptionalExtractions.AdditionalParameters {}
 
 export interface HandlerInterface extends
   MinimalResponseHandler,
