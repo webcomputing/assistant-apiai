@@ -1,10 +1,18 @@
-import { RequestExtractor, RequestContext, intent, GenericIntent, Logger, injectionNames, ComponentSpecificLoggerFactory } from "assistant-source";
-import { injectable, inject } from "inversify";
+import {
+  ComponentSpecificLoggerFactory,
+  GenericIntent,
+  injectionNames,
+  intent,
+  Logger,
+  RequestContext,
+  RequestExtractor
+  } from "assistant-source";
+import { inject, injectable } from "inversify";
 import { Component } from "inversify-components";
-
-import { Configuration, COMPONENT_NAME } from "./private-interfaces";
-import { Extraction } from "./public-interfaces";
 import { apiaiToGenericIntent } from "./intent-dict";
+import { COMPONENT_NAME, Configuration } from "./private-interfaces";
+import { Extraction } from "./public-interfaces";
+
 
 @injectable()
 export class Extractor implements RequestExtractor {
@@ -63,7 +71,7 @@ export class Extractor implements RequestExtractor {
 
     return {
       platform: this.component.name,
-      sessionID: this.getSessionID(context),
+      sessionID: `apiai-${this.getSessionID(context)}`,
       intent: this.getIntent(context),
       entities: this.getEntities(context),
       language: this.getLanguage(context),
