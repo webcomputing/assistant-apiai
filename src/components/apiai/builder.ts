@@ -1,12 +1,12 @@
-import { injectable, inject } from "inversify";
-import { Component } from "inversify-components";
-import * as fs from "fs";
-import { v4 as uuid } from "uuid";
 import * as archiver from "archiver";
-import { PlatformGenerator, GenericIntent } from "assistant-source";
-
+import { GenericIntent, PlatformGenerator } from "assistant-source";
+import * as fs from "fs";
+import { inject, injectable } from "inversify";
+import { Component } from "inversify-components";
+import { v4 as uuid } from "uuid";
 import { genericIntentToApiai } from "./intent-dict";
 import { Configuration } from "./private-interfaces";
+
 
 @injectable()
 export class Builder implements PlatformGenerator.Extension {

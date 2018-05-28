@@ -1,9 +1,9 @@
-import { ComponentDescriptor } from "inversify-components";
 import { PlatformGenerator, RequestExtractor } from "assistant-source";
-import { Extractor } from "./extractor";
-import { Configuration, COMPONENT_NAME } from "./private-interfaces";
-import { ApiAiHandle } from "./handle";
+import { ComponentDescriptor } from "inversify-components";
 import { Builder } from "./builder";
+import { Extractor } from "./extractor";
+import { ApiAiHandle } from "./handle";
+import { COMPONENT_NAME, Configuration } from "./private-interfaces";
 
 export const defaultConfiguration: Configuration.Defaults = {
   route: "/apiai",
