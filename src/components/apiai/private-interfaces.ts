@@ -13,10 +13,10 @@ export namespace Configuration {
 
   /** Required configuration options, no defaults are used here */
   export interface Required {
-    /** 
-     * List of header key/value-pairs which have to be present in an dialogflow request. 
+    /**
+     * List of header key/value-pairs which have to be present in an dialogflow request.
      * assistant-apiai checks if all headers are present and contain the respective value.
-     * To configure, go to the "fulfillment" tab in your dialogflow console and add some secret header keys and (complex) values. 
+     * To configure, go to the "fulfillment" tab in your dialogflow console and add some secret header keys and (complex) values.
      * After that, add them to this object, for example: {"myFirstSecretHeader": "myVerySecretValue", "mySecondSecretHeader": "mySecondVerySecretValue"}.
      * That way, you are able to verify that an incomming request was really sent by your dialogflow agent.
      */
@@ -24,7 +24,7 @@ export namespace Configuration {
   }
 
   /** Available configuration settings in a runtime application */
-  export interface Runtime extends Defaults, Required {};
+  export interface Runtime extends Defaults, Required {}
 }
 
 /** Name of component */

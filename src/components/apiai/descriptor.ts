@@ -1,18 +1,18 @@
-import { ComponentDescriptor } from "inversify-components";
 import { PlatformGenerator, RequestExtractor } from "assistant-source";
-import { Extractor } from "./extractor";
-import { Configuration, COMPONENT_NAME } from "./private-interfaces";
-import { ApiAiHandle } from "./handle";
+import { ComponentDescriptor } from "inversify-components";
 import { Builder } from "./builder";
+import { Extractor } from "./extractor";
+import { ApiAiHandle } from "./handle";
+import { COMPONENT_NAME, Configuration } from "./private-interfaces";
 
 export const defaultConfiguration: Configuration.Defaults = {
   route: "/apiai",
   entities: {
     number: "@sys.number",
     givenName: "@sys.given-name",
-    date: "@sys.date"
+    date: "@sys.date",
   },
-  defaultDisplayIsVoice: true
+  defaultDisplayIsVoice: true,
 };
 
 export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
@@ -20,14 +20,12 @@ export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
   defaultConfiguration: defaultConfiguration,
   bindings: {
     root: (bindService, lookupService) => {
-      bindService
-        .bindExtension<RequestExtractor>(lookupService.lookup("core:unifier").getInterface("requestProcessor"))
-        .to(Extractor);
+      bindService.bindExtension<RequestExtractor>(lookupService.lookup("core:unifier").getInterface("requestProcessor")).to(Extractor);
 
       bindService.bindExtension<PlatformGenerator.Extension>(lookupService.lookup("core:unifier").getInterface("platformGenerator")).to(Builder);
     },
-    request: (bindService) => {
+    request: bindService => {
       bindService.bindGlobalService("current-response-handler").to(ApiAiHandle);
-    }
-  }
+    },
+  },
 };

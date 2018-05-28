@@ -1,8 +1,18 @@
-import { inject, injectable, optional, multiInject } from "inversify";
-import { ExecutableExtension, Component } from "inversify-components";
-import { AbstractResponseHandler, ResponseCallback, RequestContext, ResponseHandlerExtensions } from "assistant-source"
-import { HandlerInterface } from "./public-interfaces";
+import {
+  AbstractResponseHandler,
+  RequestContext,
+  ResponseCallback,
+  ResponseHandlerExtensions
+  } from "assistant-source";
+import {
+  inject,
+  injectable,
+  multiInject,
+  optional
+  } from "inversify";
+import { Component, ExecutableExtension } from "inversify-components";
 import { Configuration } from "./private-interfaces";
+import { HandlerInterface } from "./public-interfaces";
 
 @injectable()
 export class ApiAiHandle extends AbstractResponseHandler implements HandlerInterface {
@@ -10,7 +20,7 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
   responseCallback: ResponseCallback;
   killSession: () => Promise<void>;
   configuration: Configuration.Runtime;
-  
+
   constructor(
     @inject("core:root:current-request-context") extraction: RequestContext,
     @inject("core:unifier:current-kill-session-promise") killSession: () => Promise<void>,
@@ -22,7 +32,7 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
   }
 
   getBody() {
-    let response: { data: {}, speech?: string, displayText?: string } = { data: {} };
+    let response: { data: {}; speech?: string; displayText?: string } = { data: {} };
     if (this.voiceMessage !== null && this.voiceMessage !== "") {
       response.speech = this.voiceMessage;
     }

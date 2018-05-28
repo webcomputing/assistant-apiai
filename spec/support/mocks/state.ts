@@ -1,5 +1,5 @@
-import { State, ResponseFactory } from "assistant-source";
-import { injectable, inject } from "inversify";
+import { ResponseFactory, State } from "assistant-source";
+import { inject, injectable } from "inversify";
 
 @injectable()
 export class MainState implements State.Required {
@@ -10,7 +10,10 @@ export class MainState implements State.Required {
   }
 
   chatTestIntent() {
-    this.responseFactory.createChatResponse().addChatBubble("Bubble 1").addChatBubble("Bubble 2");
+    this.responseFactory
+      .createChatResponse()
+      .addChatBubble("Bubble 1")
+      .addChatBubble("Bubble 2");
     this.responseFactory.createSimpleVoiceResponse().endSessionWith("Hello from api.ai!");
   }
 

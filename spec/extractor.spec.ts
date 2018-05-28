@@ -1,7 +1,7 @@
-import {  } from "assistant-source";
 import { componentInterfaces } from "assistant-source/lib/components/unifier/private-interfaces";
 import { Extractor } from "../src/components/apiai/extractor";
 import { validRequestContext } from "./support/mocks/request-context";
+import {} from "assistant-source";
 
 describe("this.extractor", function() {
   beforeEach(function() {
@@ -22,7 +22,10 @@ describe("this.extractor", function() {
       });
 
       it("throws exception", function() {
-        return this.extractor.fits(this.context).then(result => fail()).catch(result => expect(true).toBeTruthy());
+        return this.extractor
+          .fits(this.context)
+          .then(result => fail())
+          .catch(result => expect(true).toBeTruthy());
       });
     });
 
@@ -86,15 +89,16 @@ describe("this.extractor", function() {
       expect(this.extraction).toEqual({
         sessionID: "my-apiai-session-id",
         intent: "myIntent",
-        entities: {"entityOne": "entityValue1", "entityTwo": "entityValue2"},
+        entities: { entityOne: "entityValue1", entityTwo: "entityValue2" },
         language: "en",
+        requestTimestamp: "2017-06-24T16:00:18Z",
         platform: this.extractor.component.name,
         spokenText: "my spoken query",
         additionalParameters: {
-          "key1": "value1"
-        }
+          key1: "value1",
+        },
       });
-      done()
+      done();
     });
   });
 });

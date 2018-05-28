@@ -4,7 +4,6 @@ let ownDescriptor = require("../../src/components/apiai/descriptor").descriptor;
 let mainState = require("../support/mocks/state").MainState;
 const configuration = require("../support/mocks/configuration").configuration;
 
-
 beforeEach(function() {
   this.specHelper = new assistantJsCore.SpecSetup();
 
