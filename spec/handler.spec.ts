@@ -5,7 +5,7 @@ describe("Handler", function() {
 
   beforeEach(function() {
     apiaiHelper = new SpecHelper(this.specHelper);
-  })
+  });
 
   it("is correctly linked to spec setup", function() {
     return apiaiHelper.pretendIntentCalled("test").then(handler => {

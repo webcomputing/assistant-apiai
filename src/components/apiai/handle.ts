@@ -20,7 +20,7 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
   responseCallback: ResponseCallback;
   killSession: () => Promise<void>;
   configuration: Configuration.Runtime;
-  
+
   constructor(
     @inject("core:root:current-request-context") extraction: RequestContext,
     @inject("core:unifier:current-kill-session-promise") killSession: () => Promise<void>,
@@ -32,7 +32,7 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
   }
 
   getBody() {
-    let response: { data: {}, speech?: string, displayText?: string } = { data: {} };
+    let response: { data: {}; speech?: string; displayText?: string } = { data: {} };
     if (this.voiceMessage !== null && this.voiceMessage !== "") {
       response.speech = this.voiceMessage;
     }

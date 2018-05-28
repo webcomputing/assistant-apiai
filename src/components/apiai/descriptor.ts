@@ -10,9 +10,9 @@ export const defaultConfiguration: Configuration.Defaults = {
   entities: {
     number: "@sys.number",
     givenName: "@sys.given-name",
-    date: "@sys.date"
+    date: "@sys.date",
   },
-  defaultDisplayIsVoice: true
+  defaultDisplayIsVoice: true,
 };
 
 export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
@@ -20,14 +20,12 @@ export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
   defaultConfiguration: defaultConfiguration,
   bindings: {
     root: (bindService, lookupService) => {
-      bindService
-        .bindExtension<RequestExtractor>(lookupService.lookup("core:unifier").getInterface("requestProcessor"))
-        .to(Extractor);
+      bindService.bindExtension<RequestExtractor>(lookupService.lookup("core:unifier").getInterface("requestProcessor")).to(Extractor);
 
       bindService.bindExtension<PlatformGenerator.Extension>(lookupService.lookup("core:unifier").getInterface("platformGenerator")).to(Builder);
     },
-    request: (bindService) => {
+    request: bindService => {
       bindService.bindGlobalService("current-response-handler").to(ApiAiHandle);
-    }
-  }
+    },
+  },
 };
