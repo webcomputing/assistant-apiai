@@ -1,6 +1,6 @@
 {
   "name": "assistant-apiai",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Enables integration of api.ai into AssistantJS. Also needed for Google Assistant!",
   "scripts": {
     "test": "jasmine-ts spec/**/*.spec.ts"
@@ -21,10 +21,10 @@
   },
   "license": "SEE LICENSE IN <LICENSE>",
   "peerDependencies": {
-    "assistant-source": "^0.3.0"
+    "assistant-source": "^0.4.0"
   },
   "devDependencies": {
-    "assistant-source": "^0.3.0",
+    "assistant-source": "internal",
     "gulp": "^3.9.1",
     "gulp-sourcemaps": "^2.6.0",
     "gulp-tslint": "^8.1.0",
