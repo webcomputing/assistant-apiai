@@ -2,9 +2,11 @@ import {
   MinimalRequestExtraction,
   MinimalResponseHandler,
   OptionalExtractions,
-  OptionalHandlerFeatures
+  OptionalHandlerFeatures,
+  RequestContext
   } from "assistant-source";
 import { Configuration } from "./private-interfaces";
+import * as webhookInterface from "./webhook-interface";
 
 /** Configuration of apiai component */
 export interface ApiaiConfiguration extends Partial<Configuration.Defaults>, Configuration.Required {}
@@ -14,10 +16,9 @@ export interface ApiaiConfigurationAttribute {
   apiai: ApiaiConfiguration;
 }
 
-export interface Extraction
+export interface ExtractionInterface
   extends MinimalRequestExtraction,
     OptionalExtractions.SpokenText,
-    OptionalExtractions.Timestamp,
     OptionalExtractions.AdditionalParameters {}
 
 export interface HandlerInterface extends MinimalResponseHandler, OptionalHandlerFeatures.GUI.ChatBubbles {
@@ -27,3 +28,9 @@ export interface HandlerInterface extends MinimalResponseHandler, OptionalHandle
     displayText?: string;
   };
 }
+
+export interface DialogflowRequestContext extends RequestContext {
+  body: webhookInterface.RequestBody
+}
+
+export { webhookInterface }

@@ -4,14 +4,13 @@ import {
   injectionNames,
   intent,
   Logger,
-  RequestContext,
   RequestExtractor
   } from "assistant-source";
 import { inject, injectable } from "inversify";
 import { Component } from "inversify-components";
 import { apiaiToGenericIntent } from "./intent-dict";
 import { COMPONENT_NAME, Configuration } from "./private-interfaces";
-import { Extraction } from "./public-interfaces";
+import { ExtractionInterface, DialogflowRequestContext } from "./public-interfaces";
 
 @injectable()
 export class Extractor implements RequestExtractor {
@@ -28,7 +27,7 @@ export class Extractor implements RequestExtractor {
     this.logger = logFactory(COMPONENT_NAME, "root");
   }
 
-  async fits(context: RequestContext): Promise<boolean> {
+  async fits(context: DialogflowRequestContext): Promise<boolean> {
     this.logger.debug({ requestId: context.id }, "Checking request for dialogflow...");
 
     // 1) Check if request format is o.k.
@@ -36,10 +35,9 @@ export class Extractor implements RequestExtractor {
       !(
         context.path === this.configuration.route &&
         typeof context.body !== "undefined" &&
-        typeof context.body.sessionId !== "undefined" &&
-        typeof context.body.lang !== "undefined" &&
-        typeof context.body.result !== "undefined" &&
-        typeof context.body.result.resolvedQuery !== "undefined"
+        typeof context.body.session !== "undefined" &&
+        typeof context.body.queryResult !== "undefined" &&
+        typeof context.body.queryResult.queryText !== "undefined"
       )
     ) {
       return false;
@@ -71,7 +69,7 @@ export class Extractor implements RequestExtractor {
     }
   }
 
-  async extract(context: RequestContext): Promise<Extraction> {
+  async extract(context: DialogflowRequestContext): Promise<ExtractionInterface> {
     this.logger.info({ requestId: context.id }, "Extracting dialogflow request.");
 
     return {
@@ -81,23 +79,19 @@ export class Extractor implements RequestExtractor {
       entities: this.getEntities(context),
       language: this.getLanguage(context),
       spokenText: this.getSpokenText(context),
-      requestTimestamp: this.getRequestTimestamp(context),
       additionalParameters: this.getAdditionalParameters(context),
     };
   }
 
-  protected getRequestTimestamp(context: RequestContext) {
-    return context.body.timestamp;
-  }
-  protected getSessionID(context: RequestContext) {
-    return context.body.sessionId;
+  protected getSessionID(context: DialogflowRequestContext) {
+    return context.body.session;
   }
 
-  protected getIntent(context: RequestContext): intent {
+  protected getIntent(context: DialogflowRequestContext): intent {
     if (
-      typeof context.body.result === "undefined" ||
-      typeof context.body.result.metadata === "undefined" ||
-      typeof context.body.result.metadata.intentName !== "string"
+      typeof context.body.queryResult === "undefined" ||
+      typeof context.body.queryResult.intent === "undefined" ||
+      typeof context.body.queryResult.intent.displayName !== "string"
     ) {
       return GenericIntent.Unhandled;
     }
@@ -105,17 +99,17 @@ export class Extractor implements RequestExtractor {
     let genericIntent = this.getGenericIntent(context);
     if (genericIntent !== null) return genericIntent;
 
-    return context.body.result.metadata.intentName;
+    return context.body.queryResult.intent.displayName;
   }
 
-  protected getEntities(context: RequestContext) {
+  protected getEntities(context: DialogflowRequestContext) {
     let request = context.body;
-    if (typeof request.result !== "undefined") {
-      if (typeof request.result.parameters !== "undefined") {
+    if (typeof request.queryResult !== "undefined") {
+      if (typeof request.queryResult.parameters !== "undefined") {
         let result = {};
-        Object.keys(request.result.parameters).forEach(slotName => {
-          if (typeof request.result.parameters[slotName] !== "undefined" && request.result.parameters[slotName] !== "")
-            result[slotName] = request.result.parameters[slotName];
+        Object.keys(request.queryResult.parameters).forEach(slotName => {
+          if (typeof request.queryResult.parameters[slotName] !== "undefined" && request.queryResult.parameters[slotName] !== "")
+            result[slotName] = request.queryResult.parameters[slotName];
         });
         return result;
       }
@@ -124,21 +118,21 @@ export class Extractor implements RequestExtractor {
     return {};
   }
 
-  protected getLanguage(context: RequestContext): string {
-    return context.body.lang;
+  protected getLanguage(context: DialogflowRequestContext): string {
+    return context.body.queryResult.languageCode;
   }
 
   /* Returns GenericIntent if request is a GenericIntent, or null, if not */
-  protected getGenericIntent(context: RequestContext): GenericIntent | null {
-    return Extractor.makeIntentStringToGenericIntent(context.body.result.metadata.intentName);
+  protected getGenericIntent(context: DialogflowRequestContext): GenericIntent | null {
+    return Extractor.makeIntentStringToGenericIntent(context.body.queryResult.intent.displayName);
   }
 
-  protected getSpokenText(context: RequestContext): string {
-    return context.body.result.resolvedQuery;
+  protected getSpokenText(context: DialogflowRequestContext): string {
+    return context.body.queryResult.queryText;
   }
 
-  protected getAdditionalParameters(context: RequestContext): { [args: string]: any } {
-    return (context.body && context.body.originalRequest && context.body.originalRequest.data) || {};
+  protected getAdditionalParameters(context: DialogflowRequestContext): { [args: string]: any } {
+    return (context.body && context.body.originalDetectIntentRequest && context.body.originalDetectIntentRequest.payload) || {};
   }
 
   static makeIntentStringToGenericIntent(intent: string): GenericIntent | null {

@@ -6,7 +6,7 @@ import {
   } from "assistant-source";
 import { Component } from "inversify-components";
 import { ApiAiHandle } from "./components/apiai/handle";
-import { Extraction, HandlerInterface } from "./components/apiai/public-interfaces";
+import { ExtractionInterface, HandlerInterface } from "./components/apiai/public-interfaces";
 
 export class SpecHelper implements PlatformSpecHelper {
   specSetup: SpecSetup;
@@ -16,7 +16,7 @@ export class SpecHelper implements PlatformSpecHelper {
   }
 
   async pretendIntentCalled(intent: intent, autoStart = true, additionalExtractions = {}, additionalContext = {}): Promise<HandlerInterface> {
-    let extraction: Extraction = Object.assign(
+    let extraction: ExtractionInterface = Object.assign(
       {
         platform: "apiai",
         intent: intent,
