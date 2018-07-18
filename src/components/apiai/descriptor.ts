@@ -1,8 +1,8 @@
-import { PlatformGenerator, RequestExtractor } from "assistant-source";
-import { ComponentDescriptor } from "inversify-components";
+import { PlatformGenerator, RequestExtractor } from "../../../../AssistantJS/dts/assistant-source";
+import { ComponentDescriptor } from "../../../../AssistantJS/node_modules/inversify-components";
 import { Builder } from "./builder";
 import { Extractor } from "./extractor";
-import { ApiAiHandle } from "./handle";
+import { ApiAiHandler } from "./handler";
 import { COMPONENT_NAME, Configuration } from "./private-interfaces";
 
 export const defaultConfiguration: Configuration.Defaults = {
@@ -25,7 +25,7 @@ export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
       bindService.bindExtension<PlatformGenerator.Extension>(lookupService.lookup("core:unifier").getInterface("platformGenerator")).to(Builder);
     },
     request: bindService => {
-      bindService.bindGlobalService("current-response-handler").to(ApiAiHandle);
+      bindService.bindGlobalService("current-response-handler").to(ApiAiHandler);
     },
   },
 };

@@ -1,21 +1,11 @@
-import {
-  intent,
-  PlatformSpecHelper,
-  RequestContext,
-  SpecSetup
-  } from "assistant-source";
-import { Component } from "inversify-components";
-import { ApiAiHandle } from "./components/apiai/handle";
-import { Extraction, HandlerInterface } from "./components/apiai/public-interfaces";
+import { intent, PlatformSpecHelper, RequestContext, SpecHelper } from "../../AssistantJS/dts/assistant-source";
+import { ApiAiHandler } from "./components/apiai/handler";
+import { Extraction, ApiAiSpecificTypes } from "./components/apiai/public-interfaces";
 
-export class SpecHelper implements PlatformSpecHelper {
-  specSetup: SpecSetup;
+export class ApiAiSpecHelper implements PlatformSpecHelper {
+  constructor(public specSetup: SpecHelper) {}
 
-  constructor(assistantSpecSetup: SpecSetup) {
-    this.specSetup = assistantSpecSetup;
-  }
-
-  async pretendIntentCalled(intent: intent, autoStart = true, additionalExtractions = {}, additionalContext = {}): Promise<HandlerInterface> {
+  async pretendIntentCalled(intent: intent, autoStart = true, additionalExtractions = {}, additionalContext = {}) {
     let extraction: Extraction = Object.assign(
       {
         platform: "apiai",
@@ -47,7 +37,7 @@ export class SpecHelper implements PlatformSpecHelper {
     this.specSetup.setup.container.inversifyInstance.unbind("apiai:current-response-handler");
     this.specSetup.setup.container.inversifyInstance
       .bind("apiai:current-response-handler")
-      .to(ApiAiHandle)
+      .to(ApiAiHandler)
       .inSingletonScope();
 
     // auto run machine if wanted
@@ -55,6 +45,6 @@ export class SpecHelper implements PlatformSpecHelper {
       await this.specSetup.runMachine();
     }
 
-    return this.specSetup.setup.container.inversifyInstance.get<ApiAiHandle>("apiai:current-response-handler");
+    return this.specSetup.setup.container.inversifyInstance.get<ApiAiHandler<ApiAiSpecificTypes>>("apiai:current-response-handler") as any;
   }
 }

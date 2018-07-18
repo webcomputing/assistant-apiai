@@ -1,12 +1,4 @@
-import {
-  ComponentSpecificLoggerFactory,
-  GenericIntent,
-  injectionNames,
-  intent,
-  Logger,
-  RequestContext,
-  RequestExtractor
-  } from "assistant-source";
+import { ComponentSpecificLoggerFactory, GenericIntent, injectionNames, intent, Logger, RequestContext, RequestExtractor } from "assistant-source";
 import { inject, injectable } from "inversify";
 import { Component } from "inversify-components";
 import { apiaiToGenericIntent } from "./intent-dict";

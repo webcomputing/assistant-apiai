@@ -1,27 +1,20 @@
-import { ResponseFactory, State } from "assistant-source";
-import { inject, injectable } from "inversify";
+import { State, injectionNames, BasicHandable } from "../../../../AssistantJS/dts/assistant-source";
+import { inject, injectable } from "../../../../AssistantJS/node_modules/inversify";
+import { ApiAiSpecificTypes, ApiAISpecificHandable } from "../../../src/assistant-apiai";
 
 @injectable()
 export class MainState implements State.Required {
-  responseFactory: ResponseFactory;
-
-  constructor(@inject("core:unifier:current-response-factory") factory: ResponseFactory) {
-    this.responseFactory = factory;
-  }
+  constructor(@inject(injectionNames.current.responseHandler) private handler: ApiAISpecificHandable<ApiAiSpecificTypes>) {}
 
   chatTestIntent() {
-    this.responseFactory
-      .createChatResponse()
-      .addChatBubble("Bubble 1")
-      .addChatBubble("Bubble 2");
-    this.responseFactory.createSimpleVoiceResponse().endSessionWith("Hello from api.ai!");
+    this.handler.setChatBubbles(["Bubble 1", "Bubble 2"]).endSessionWith("Hello from api.ai!");
   }
 
   unhandledGenericIntent() {
-    this.responseFactory.createSimpleVoiceResponse().endSessionWith("Hello from api.ai!");
+    this.handler.endSessionWith("Hello from api.ai!");
   }
 
-  unansweredGenericIntent() {
-    this.responseFactory.createAndSendEmptyResponse();
+  async unansweredGenericIntent() {
+    await this.handler.send();
   }
 }

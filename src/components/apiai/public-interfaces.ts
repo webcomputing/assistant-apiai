@@ -1,9 +1,9 @@
 import {
   MinimalRequestExtraction,
-  MinimalResponseHandler,
   OptionalExtractions,
-  OptionalHandlerFeatures
-  } from "assistant-source";
+  BasicAnswerTypes,
+  BasicHandable
+  } from "../../../../AssistantJS/dts/assistant-source";
 import { Configuration } from "./private-interfaces";
 
 /** Configuration of apiai component */
@@ -20,10 +20,12 @@ export interface Extraction
     OptionalExtractions.Timestamp,
     OptionalExtractions.AdditionalParameters {}
 
-export interface HandlerInterface extends MinimalResponseHandler, OptionalHandlerFeatures.GUI.ChatBubbles {
-  getBody(): {
-    data: any;
-    speech?: string;
-    displayText?: string;
-  };
-}
+/**
+ * Add custom types here
+ */
+export interface ApiAiSpecificTypes extends BasicAnswerTypes {}
+
+/**
+ * Add custom methods for here
+ */
+export interface ApiAISpecificHandable<CustomTypes extends ApiAiSpecificTypes> extends BasicHandable<ApiAiSpecificTypes>{}

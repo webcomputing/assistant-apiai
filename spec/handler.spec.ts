@@ -1,10 +1,10 @@
-import { SpecHelper } from "../src/spec-helper";
+import { ApiAiSpecHelper } from "../src/spec-helper";
 
 describe("Handler", function() {
-  let apiaiHelper: SpecHelper;
+  let apiaiHelper: ApiAiSpecHelper;
 
   beforeEach(function() {
-    apiaiHelper = new SpecHelper(this.specHelper);
+    apiaiHelper = new ApiAiSpecHelper(this.specHelper);
   });
 
   it("is correctly linked to spec setup", function() {

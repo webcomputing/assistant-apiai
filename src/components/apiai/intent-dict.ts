@@ -1,4 +1,4 @@
-import { GenericIntent } from "assistant-source";
+import { GenericIntent } from "../../../../AssistantJS/dts/assistant-source";
 
 // Taken from: http://stackoverflow.com/questions/23013573/swap-key-with-value-json
 let swap = function(json) {

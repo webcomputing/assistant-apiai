@@ -1,7 +1,7 @@
 import { componentInterfaces } from "assistant-source/lib/components/unifier/private-interfaces";
 import { Extractor } from "../src/components/apiai/extractor";
 import { validRequestContext } from "./support/mocks/request-context";
-import {} from "assistant-source";
+import {} from "../../AssistantJS/dts/assistant-source";
 
 describe("this.extractor", function() {
   beforeEach(function() {

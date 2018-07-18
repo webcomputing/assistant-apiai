@@ -1,8 +1,8 @@
 import * as archiver from "archiver";
-import { GenericIntent, PlatformGenerator } from "assistant-source";
+import { GenericIntent, PlatformGenerator } from "../../../../AssistantJS/dts/assistant-source";
 import * as fs from "fs";
-import { inject, injectable } from "inversify";
-import { Component } from "inversify-components";
+import { inject, injectable } from "../../../../AssistantJS/node_modules/inversify";
+import { Component } from "../../../../AssistantJS/node_modules/inversify-components";
 import { v4 as uuid } from "uuid";
 import { genericIntentToApiai } from "./intent-dict";
 import { Configuration } from "./private-interfaces";
