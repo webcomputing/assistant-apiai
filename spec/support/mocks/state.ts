@@ -1,20 +1,20 @@
-import { State, injectionNames, BasicHandable } from "../../../../AssistantJS/dts/assistant-source";
-import { inject, injectable } from "../../../../AssistantJS/node_modules/inversify";
-import { ApiAiSpecificTypes, ApiAISpecificHandable } from "../../../src/assistant-apiai";
+import { BasicHandable, injectionNames, State } from "assistant-source";
+import { inject, injectable } from "inversify";
+import { ApiAISpecificHandable, ApiAiSpecificTypes } from "../../../src/assistant-apiai";
 
 @injectable()
 export class MainState implements State.Required {
   constructor(@inject(injectionNames.current.responseHandler) private handler: ApiAISpecificHandable<ApiAiSpecificTypes>) {}
 
-  chatTestIntent() {
+  public chatTestIntent() {
     this.handler.setChatBubbles(["Bubble 1", "Bubble 2"]).endSessionWith("Hello from api.ai!");
   }
 
-  unhandledGenericIntent() {
+  public unhandledGenericIntent() {
     this.handler.endSessionWith("Hello from api.ai!");
   }
 
-  async unansweredGenericIntent() {
+  public async unansweredGenericIntent() {
     await this.handler.send();
   }
 }
