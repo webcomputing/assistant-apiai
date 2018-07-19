@@ -23,7 +23,6 @@ export class SpecHelper implements PlatformSpecHelper {
         sessionID: "apiai-mock-session-id",
         language: "en",
         spokenText: "this is the spoken text",
-        requestTimestamp: "2017-06-24T16:00:18Z",
         additionalParameters: {},
       },
       additionalExtractions
