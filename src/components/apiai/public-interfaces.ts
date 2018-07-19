@@ -1,9 +1,4 @@
-import {
-  MinimalRequestExtraction,
-  OptionalExtractions,
-  BasicAnswerTypes,
-  BasicHandable
-  } from "../../../../AssistantJS/dts/assistant-source";
+import { BasicAnswerTypes, BasicHandable, MinimalRequestExtraction, OptionalExtractions } from "assistant-source";
 import { Configuration } from "./private-interfaces";
 
 /** Configuration of apiai component */
@@ -28,4 +23,4 @@ export interface ApiAiSpecificTypes extends BasicAnswerTypes {}
 /**
  * Add custom methods for here
  */
-export interface ApiAISpecificHandable<CustomTypes extends ApiAiSpecificTypes> extends BasicHandable<ApiAiSpecificTypes>{}
+export interface ApiAISpecificHandable<CustomTypes extends ApiAiSpecificTypes> extends BasicHandable<ApiAiSpecificTypes> {}

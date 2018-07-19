@@ -1,5 +1,5 @@
-import { PlatformGenerator, RequestExtractor } from "../../../../AssistantJS/dts/assistant-source";
-import { ComponentDescriptor } from "../../../../AssistantJS/node_modules/inversify-components";
+import { PlatformGenerator, RequestExtractor } from "assistant-source";
+import { ComponentDescriptor } from "inversify-components";
 import { Builder } from "./builder";
 import { Extractor } from "./extractor";
 import { ApiAiHandler } from "./handler";
@@ -17,7 +17,7 @@ export const defaultConfiguration: Configuration.Defaults = {
 
 export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
   name: COMPONENT_NAME,
-  defaultConfiguration: defaultConfiguration,
+  defaultConfiguration,
   bindings: {
     root: (bindService, lookupService) => {
       bindService.bindExtension<RequestExtractor>(lookupService.lookup("core:unifier").getInterface("requestProcessor")).to(Extractor);

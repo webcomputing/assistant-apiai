@@ -1,38 +1,30 @@
-import {
-  RequestContext,
-  ResponseHandlerExtensions,
-  injectionNames,
-  BasicHandler
-  } from "../../../../AssistantJS/dts/assistant-source";
-import {
-  inject,
-  injectable
-  } from "inversify";
+import { BasicHandler, injectionNames, RequestContext, ResponseHandlerExtensions } from "assistant-source";
+import { inject, injectable } from "inversify";
 import { Component, ExecutableExtension } from "inversify-components";
 import { Configuration } from "./private-interfaces";
-import { ApiAiSpecificTypes, ApiAISpecificHandable } from "./public-interfaces";
+import { ApiAISpecificHandable, ApiAiSpecificTypes } from "./public-interfaces";
 
 @injectable()
 export class ApiAiHandler<CustomTypes extends ApiAiSpecificTypes> extends BasicHandler<CustomTypes> implements ApiAISpecificHandable<CustomTypes> {
-  specificWhitelist: string[];
+  public specificWhitelist: string[] = [];
 
+  public chatBubbles: string[] | null = null;
 
-  chatBubbles: string[] | null = null;
-
-  configuration: Configuration.Runtime;
+  public configuration: Configuration.Runtime;
 
   constructor(
     @inject(injectionNames.current.requestContext) extraction: RequestContext,
     @inject(injectionNames.current.killSessionService) killSession: () => Promise<void>,
     @inject("meta:component//apiai") componentMeta: Component<Configuration.Runtime>,
-    @inject(injectionNames.current.responseHandlerExtensions) responseHandlerExtensions: ResponseHandlerExtensions<CustomTypes, ApiAISpecificHandable<CustomTypes>>
+    @inject(injectionNames.current.responseHandlerExtensions)
+    responseHandlerExtensions: ResponseHandlerExtensions<CustomTypes, ApiAISpecificHandable<CustomTypes>>
   ) {
     super(extraction, killSession, responseHandlerExtensions);
     this.configuration = componentMeta.configuration;
   }
 
   protected getBody(results: Partial<CustomTypes>) {
-    let response: { data: {}; speech?: CustomTypes["voiceMessage"]; displayText?: string } = { data: {} };
+    const response: { data: {}; speech?: CustomTypes["voiceMessage"]; displayText?: string } = { data: {} };
     if (results.voiceMessage) {
       response.speech = results.voiceMessage;
     }
