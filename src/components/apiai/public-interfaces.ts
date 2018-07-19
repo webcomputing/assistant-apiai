@@ -6,7 +6,7 @@ import {
   RequestContext
   } from "assistant-source";
 import { Configuration } from "./private-interfaces";
-import * as webhookInterface from "./webhook-interface";
+import * as DialogflowInterface from "./dialogflow-interface";
 
 /** Configuration of apiai component */
 export interface ApiaiConfiguration extends Partial<Configuration.Defaults>, Configuration.Required {}
@@ -24,7 +24,7 @@ export interface ExtractionInterface
 export interface HandlerInterface extends MinimalResponseHandler {}
 
 export interface DialogflowRequestContext extends RequestContext {
-  body: webhookInterface.RequestBody
+  body: DialogflowInterface.RequestBody
 }
 
-export { webhookInterface }
+export { DialogflowInterface }
