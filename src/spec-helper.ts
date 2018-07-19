@@ -1,18 +1,17 @@
 import { intent as Intent, PlatformSpecHelper, RequestContext, SpecHelper } from "assistant-source";
 import { ApiAiHandler } from "./components/apiai/handler";
-import { ApiAiSpecificTypes, Extraction } from "./components/apiai/public-interfaces";
+import { ApiAiSpecificTypes, ExtractionInterface } from "./components/apiai/public-interfaces";
 
 export class ApiAiSpecHelper implements PlatformSpecHelper<ApiAiSpecificTypes, ApiAiHandler<ApiAiSpecificTypes>> {
   constructor(public specSetup: SpecHelper) {}
 
   public async pretendIntentCalled(intent: Intent, autoStart = true, additionalExtractions = {}, additionalContext = {}) {
-    const extraction: Extraction = {
-      intent,
+    const extraction: ExtractionInterface = {
       platform: "apiai",
+      intent,
       sessionID: "apiai-mock-session-id",
       language: "en",
       spokenText: "this is the spoken text",
-      requestTimestamp: "2017-06-24T16:00:18Z",
       additionalParameters: {},
       ...additionalExtractions,
     };
