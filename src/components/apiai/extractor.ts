@@ -1,16 +1,9 @@
-import {
-  ComponentSpecificLoggerFactory,
-  GenericIntent,
-  injectionNames,
-  intent,
-  Logger,
-  RequestExtractor
-  } from "assistant-source";
+import { ComponentSpecificLoggerFactory, GenericIntent, injectionNames, intent, Logger, RequestExtractor } from "assistant-source";
 import { inject, injectable } from "inversify";
 import { Component } from "inversify-components";
 import { apiaiToGenericIntent } from "./intent-dict";
 import { COMPONENT_NAME, Configuration } from "./private-interfaces";
-import { ExtractionInterface, DialogflowRequestContext } from "./public-interfaces";
+import { DialogflowRequestContext, ExtractionInterface } from "./public-interfaces";
 
 @injectable()
 export class Extractor implements RequestExtractor {
@@ -27,7 +20,7 @@ export class Extractor implements RequestExtractor {
     this.logger = logFactory(COMPONENT_NAME, "root");
   }
 
-  async fits(context: DialogflowRequestContext): Promise<boolean> {
+  public async fits(context: DialogflowRequestContext): Promise<boolean> {
     this.logger.debug({ requestId: context.id }, "Checking request for dialogflow...");
 
     // 1) Check if request format is o.k.
@@ -69,7 +62,7 @@ export class Extractor implements RequestExtractor {
     }
   }
 
-  async extract(context: DialogflowRequestContext): Promise<ExtractionInterface> {
+  public async extract(context: DialogflowRequestContext): Promise<ExtractionInterface> {
     this.logger.info({ requestId: context.id }, "Extracting dialogflow request.");
 
     return {
@@ -96,20 +89,21 @@ export class Extractor implements RequestExtractor {
       return GenericIntent.Unhandled;
     }
 
-    let genericIntent = this.getGenericIntent(context);
+    const genericIntent = this.getGenericIntent(context);
     if (genericIntent !== null) return genericIntent;
 
     return context.body.queryResult.intent.displayName;
   }
 
   protected getEntities(context: DialogflowRequestContext) {
-    let request = context.body;
+    const request = context.body;
     if (typeof request.queryResult !== "undefined") {
       if (typeof request.queryResult.parameters !== "undefined") {
-        let result = {};
+        const result = {};
         Object.keys(request.queryResult.parameters).forEach(slotName => {
-          if (typeof request.queryResult.parameters[slotName] !== "undefined" && request.queryResult.parameters[slotName] !== "")
+          if (typeof request.queryResult.parameters[slotName] !== "undefined" && request.queryResult.parameters[slotName] !== "") {
             result[slotName] = request.queryResult.parameters[slotName];
+          }
         });
         return result;
       }
@@ -135,7 +129,7 @@ export class Extractor implements RequestExtractor {
     return (context.body && context.body.originalDetectIntentRequest && context.body.originalDetectIntentRequest.payload) || {};
   }
 
-  static makeIntentStringToGenericIntent(intent: string): GenericIntent | null {
+  public static makeIntentStringToGenericIntent(intent: string): GenericIntent | null {
     return apiaiToGenericIntent.hasOwnProperty(intent) ? apiaiToGenericIntent[intent] : null;
   }
 }

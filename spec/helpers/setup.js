@@ -5,11 +5,10 @@ let mainState = require("../support/mocks/state").MainState;
 const fakeRedis = require("fakeredis");
 const configuration = require("../support/mocks/configuration").configuration;
 
-
 let specSetupId = 0;
 
 beforeEach(function() {
-  this.specHelper = new assistantJsCore.SpecSetup();
+  this.specHelper = new assistantJsCore.SpecHelper();
 
   this.assistantJs = this.specHelper.setup;
 
@@ -31,8 +30,7 @@ beforeEach(function() {
       },
     },
   });
-  
+
   // Prepare all other steps
   this.specHelper.prepare([mainState]);
-
 });
