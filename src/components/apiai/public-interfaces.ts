@@ -21,13 +21,7 @@ export interface ExtractionInterface
     OptionalExtractions.SpokenText,
     OptionalExtractions.AdditionalParameters {}
 
-export interface HandlerInterface extends MinimalResponseHandler, OptionalHandlerFeatures.GUI.ChatBubbles {
-  getBody(): {
-    data: any;
-    speech?: string;
-    displayText?: string;
-  };
-}
+export interface HandlerInterface extends MinimalResponseHandler {}
 
 export interface DialogflowRequestContext extends RequestContext {
   body: webhookInterface.RequestBody

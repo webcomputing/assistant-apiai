@@ -360,7 +360,7 @@ export interface IntentFollowupIntentInfo {
   /**  Optional. The collection of rich messages to present to the user. This value is passed directly to QueryResult.fulfillment_messages. */
   fulfillmentMessages?: IntentMessage[],
   /** Optional. This value is passed directly to QueryResult.webhook_source. */
-  source: string,
+  source?: string,
   /** Optional. This value is passed directly to QueryResult.webhook_payload */
   payload?: {
     [key: string]: any

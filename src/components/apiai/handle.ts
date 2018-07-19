@@ -11,7 +11,7 @@ import {
   } from "inversify";
 import { Component, ExecutableExtension } from "inversify-components";
 import { Configuration } from "./private-interfaces";
-import { HandlerInterface } from "./public-interfaces";
+import { HandlerInterface, webhookInterface } from "./public-interfaces";
 
 @injectable()
 export class ApiAiHandle extends AbstractResponseHandler implements HandlerInterface {
@@ -31,16 +31,10 @@ export class ApiAiHandle extends AbstractResponseHandler implements HandlerInter
   }
 
   getBody() {
-    let response: { data: {}; speech?: string; displayText?: string } = { data: {} };
-    if (this.voiceMessage !== null && this.voiceMessage !== "") {
-      response.speech = this.voiceMessage;
-    }
+    const response: webhookInterface.ResponseBody = {};
 
-    // Set "displayText"
-    if (this.chatBubbles === null) {
-      response.displayText = this.configuration.defaultDisplayIsVoice === true && this.voiceMessage !== null ? undefined : "";
-    } else {
-      response.displayText = this.chatBubbles.join(" ");
+    if (this.voiceMessage !== null && this.voiceMessage !== "") {
+      response.fulfillmentText = this.voiceMessage
     }
 
     return response;
