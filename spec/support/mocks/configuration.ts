@@ -6,5 +6,6 @@ export const configuration: ApiaiConfiguration = {
     secretHeader1: "value1",
     secretHeader2: "value2",
   },
+
   route: validRequestContext.path,
 };

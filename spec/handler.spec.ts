@@ -20,14 +20,6 @@ describe("Handler", function() {
     });
   });
 
-  describe("with chat bubbles given", function() {
-    it("concatenates bubbles to displayText", function() {
-      return apiaiHelper.pretendIntentCalled("chatTest").then(handler => {
-        expect((handler as any).getBody().displayText).toBe("Bubble 1 Bubble 2");
-      });
-    });
-  });
-
   it("cannot be executed twice", function() {
     return apiaiHelper.pretendIntentCalled("test").then(handler => {
       expect(function() {

@@ -9,23 +9,33 @@ export const validRequestContext = {
     secretHeader2: "value2",
   },
   body: {
-    sessionId: "my-apiai-session-id",
-    lang: "en",
-    timestamp: "2017-06-24T16:00:18Z",
-    result: {
-      resolvedQuery: "my spoken query",
-      metadata: {
-        intentName: "myIntent",
-      },
+    reponseId: "my-dialogflow-response-id",
+    session: "my-dialogflow-session",
+    queryResult: {
+      queryText: "user's original agent query",
       parameters: {
-        entityOne: "entityValue1",
-        entityTwo: "entityValue2",
+        param1: "param-value1",
+        param2: "param-value2",
       },
-    },
-    originalRequest: {
-      data: {
-        key1: "value1",
+      allRequiredParamsPresent: true,
+      fulfillmentMessages: [
+        {
+          text: {
+            text: [""],
+          },
+        },
+      ],  
+      intent: {
+        name: "my-unique-dialogflow-intent-name",
+        displayName: "Matched Intent Name",
       },
+      intentDetectionConfidence: 1,
+      languageCode: "en"
     },
+    originalDetectIntentRequest: {
+      payload: {
+        key1: "value1"
+      }
+    }
   },
 };

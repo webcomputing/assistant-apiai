@@ -1,19 +1,15 @@
-import { ResponseFactory, State } from "assistant-source";
+import { ResponseFactory, State, injectionNames } from "assistant-source";
 import { inject, injectable } from "inversify";
 
 @injectable()
 export class MainState implements State.Required {
   responseFactory: ResponseFactory;
 
-  constructor(@inject("core:unifier:current-response-factory") factory: ResponseFactory) {
+  constructor(@inject(injectionNames.current.responseFactory) factory: ResponseFactory) {
     this.responseFactory = factory;
   }
 
   chatTestIntent() {
-    this.responseFactory
-      .createChatResponse()
-      .addChatBubble("Bubble 1")
-      .addChatBubble("Bubble 2");
     this.responseFactory.createSimpleVoiceResponse().endSessionWith("Hello from api.ai!");
   }
 
