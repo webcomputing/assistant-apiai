@@ -20,7 +20,7 @@ export interface ApiAiSpecificTypes extends BasicAnswerTypes {}
 /**
  * Add custom methods for here
  */
-export interface ApiAISpecificHandable<CustomTypes extends ApiAiSpecificTypes> extends BasicHandable<ApiAiSpecificTypes> {}
+export interface ApiAISpecificHandable<CustomTypes extends ApiAiSpecificTypes> extends BasicHandable<CustomTypes> {}
 
 export interface DialogflowRequestContext extends RequestContext {
   body: webhookInterface.RequestBody;
