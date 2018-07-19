@@ -7,12 +7,13 @@ export class MainState implements State.Required {
   constructor(@inject(injectionNames.current.responseHandler) private handler: ApiAISpecificHandable<ApiAiSpecificTypes>) {}
 
   public chatTestIntent() {
-    this.handler.setChatBubbles(["Bubble 1", "Bubble 2"]).endSessionWith("Hello from api.ai!");
+    this.handler.endSessionWith("Hello from api.ai!");
   }
 
   public unhandledGenericIntent() {
     this.handler.endSessionWith("Hello from api.ai!");
   }
+
 
   public async unansweredGenericIntent() {
     await this.handler.send();

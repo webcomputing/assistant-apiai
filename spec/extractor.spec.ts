@@ -41,7 +41,7 @@ describe("this.extractor", function() {
 
     describe("with wrong format", function() {
       beforeEach(function() {
-        delete this.context.body.sessionId;
+        delete this.context.body.session;
       });
 
       it("returns false", function() {
@@ -87,16 +87,13 @@ describe("this.extractor", function() {
       this.extraction = await this.extractor.extract(this.context);
 
       expect(this.extraction).toEqual({
-        sessionID: "my-apiai-session-id",
-        intent: "myIntent",
-        entities: { entityOne: "entityValue1", entityTwo: "entityValue2" },
+        sessionID: "my-dialogflow-session",
+        intent: "Matched Intent Name",
+        entities: { param1: "param-value1", param2: "param-value2" },
         language: "en",
-        requestTimestamp: "2017-06-24T16:00:18Z",
         platform: this.extractor.component.name,
-        spokenText: "my spoken query",
-        additionalParameters: {
-          key1: "value1",
-        },
+        spokenText: "user's original agent query",
+        additionalParameters: { key1: "value1"}
       });
       done();
     });

@@ -7,8 +7,8 @@ export class ApiAiSpecHelper implements PlatformSpecHelper<ApiAiSpecificTypes, A
 
   public async pretendIntentCalled(intent: Intent, autoStart = true, additionalExtractions = {}, additionalContext = {}) {
     const extraction: ExtractionInterface = {
-      platform: "apiai",
       intent,
+      platform: "apiai",
       sessionID: "apiai-mock-session-id",
       language: "en",
       spokenText: "this is the spoken text",
