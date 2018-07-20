@@ -1,6 +1,6 @@
 import { BasicHandler, injectionNames, RequestContext, ResponseHandlerExtensions } from "assistant-source";
 import { inject, injectable } from "inversify";
-import { ApiAISpecificHandable, ApiAiSpecificTypes, webhookInterface } from "./public-interfaces";
+import { ApiAISpecificHandable, ApiAiSpecificTypes, DialogflowInterface } from "./public-interfaces";
 
 @injectable()
 export class ApiAiHandler<CustomTypes extends ApiAiSpecificTypes> extends BasicHandler<CustomTypes> implements ApiAISpecificHandable<CustomTypes> {
@@ -15,8 +15,8 @@ export class ApiAiHandler<CustomTypes extends ApiAiSpecificTypes> extends BasicH
     super(extraction, killSession, responseHandlerExtensions);
   }
 
-  protected getBody(results: Partial<CustomTypes>): webhookInterface.ResponseBody {
-    const response: webhookInterface.ResponseBody = {};
+  protected getBody(results: Partial<CustomTypes>): DialogflowInterface.ResponseBody {
+    const response: DialogflowInterface.ResponseBody = {};
 
     if (results.voiceMessage) {
       response.fulfillmentText = results.voiceMessage.text;

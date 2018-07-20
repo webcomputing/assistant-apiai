@@ -1,6 +1,6 @@
 import { BasicAnswerTypes, BasicHandable, MinimalRequestExtraction, OptionalExtractions, RequestContext } from "assistant-source";
-import { Configuration } from "./private-interfaces";
 import * as DialogflowInterface from "./dialogflow-interface";
+import { Configuration } from "./private-interfaces";
 
 /** Configuration of apiai component */
 export interface ApiaiConfiguration extends Partial<Configuration.Defaults>, Configuration.Required {}
@@ -23,7 +23,7 @@ export interface ApiAiSpecificTypes extends BasicAnswerTypes {}
 export interface ApiAISpecificHandable<CustomTypes extends ApiAiSpecificTypes> extends BasicHandable<CustomTypes> {}
 
 export interface DialogflowRequestContext extends RequestContext {
-  body: DialogflowInterface.RequestBody
+  body: DialogflowInterface.RequestBody;
 }
 
-export { DialogflowInterface }
+export { DialogflowInterface };
