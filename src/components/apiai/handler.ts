@@ -1,4 +1,4 @@
-import { BasicHandler, injectionNames, RequestContext, ResponseHandlerExtensions } from "assistant-source";
+import { BasicHandler, injectionNames, MinimalRequestExtraction, RequestContext, ResponseHandlerExtensions } from "assistant-source";
 import { inject, injectable } from "inversify";
 import { ApiAISpecificHandable, ApiAiSpecificTypes, DialogflowInterface } from "./public-interfaces";
 
@@ -7,12 +7,13 @@ export class ApiAiHandler<CustomTypes extends ApiAiSpecificTypes> extends BasicH
   public specificWhitelist: string[] = [];
 
   constructor(
-    @inject(injectionNames.current.requestContext) extraction: RequestContext,
+    @inject(injectionNames.current.requestContext) requestContext: RequestContext,
+    @inject(injectionNames.current.extraction) extraction: MinimalRequestExtraction,
     @inject(injectionNames.current.killSessionService) killSession: () => Promise<void>,
     @inject(injectionNames.current.responseHandlerExtensions)
     responseHandlerExtensions: ResponseHandlerExtensions<CustomTypes, ApiAISpecificHandable<CustomTypes>>
   ) {
-    super(extraction, killSession, responseHandlerExtensions);
+    super(requestContext, extraction, killSession, responseHandlerExtensions);
   }
 
   protected getBody(results: Partial<CustomTypes>): DialogflowInterface.ResponseBody {
