@@ -16,7 +16,7 @@ export type IntentDefaultResponsePlatforms =
   | "ACTIONS_ON_GOOGLE";
 
 /**
- * The request body sent to your service is in JSON format
+ * The request body sent to AssistantJS in JSON format.
  * @example
  * {
  * "responseId": "string",
@@ -36,6 +36,9 @@ export interface WebhookRequest {
   originalDetectIntentRequest: OriginalDetectIntentRequest;
 }
 
+/**
+ * Result of the conversation query or event processing
+ */
 export interface QueryResult {
   /** The original text of the query */
   queryText: string;
@@ -67,6 +70,9 @@ export interface QueryResult {
   languageCode: string;
 }
 
+/**
+ * Full request coming from an integrated platform. (Facebook Messenger, Slack, etc.)
+ */
 export interface OriginalDetectIntentRequest {
   /** The source of this request, e.g., google, facebook, slack. It is set by Dialogflow-owned servers. */
   source: string;
@@ -78,6 +84,10 @@ export interface OriginalDetectIntentRequest {
   };
 }
 
+/**
+ * Represents an intent. Intents convert a number of user expressions or patterns into an action.
+ * An action is an extraction of a user command or sentence semantics.
+ */
 export interface Intent {
   /** Required for all methods except create (create populates the name automatically. The unique identifier of this intent. Format: projects/<Project ID>/agent/intents/<Intent ID> */
   name: string;
@@ -123,6 +133,9 @@ export interface Intent {
   followupIntentInfo?: IntentFollowupIntentInfo[];
 }
 
+/**
+ * Represents an example or template that the agent is trained on.
+ */
 export interface TrainingPhrase {
   /** Required. The unique identifier of this training phrase */
   name: string;
@@ -132,6 +145,9 @@ export interface TrainingPhrase {
   parts: TrainingPhrasePart[];
 }
 
+/**
+ * Represents a part of a training phrase.
+ */
 export interface TrainingPhrasePart {
   /** Required. The text corresponding to the example or template, if there are no annotations. For annotated examples, it is the text for one of the example's parts. */
   text: string;
@@ -143,6 +159,9 @@ export interface TrainingPhrasePart {
   userDefined?: boolean;
 }
 
+/**
+ *  The collection of parameters associated with the intent.
+ */
 export interface IntentParameter {
   /** The unique identifier of this parameter. */
   name: string;
@@ -165,6 +184,9 @@ export interface IntentParameter {
   isList: boolean;
 }
 
+/**
+ * Represents a single followup intent in the chain.
+ */
 export interface IntentFollowupIntentInfo {
   /** The unique identifier of the followup intent */
   followupIntentName?: string;

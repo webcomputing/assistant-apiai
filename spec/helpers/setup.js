@@ -2,10 +2,8 @@ require("reflect-metadata");
 let assistantJsCore = require("assistant-source");
 let ownDescriptor = require("../../src/components/apiai/descriptor").descriptor;
 let mainState = require("../support/mocks/state").MainState;
-const fakeRedis = require("fakeredis");
 const configuration = require("../support/mocks/configuration").configuration;
-
-let specSetupId = 0;
+const serviceConfiguration = require("../support/mocks/configuration").serviceConfiguration;
 
 beforeEach(function() {
   this.specHelper = new assistantJsCore.SpecHelper();
@@ -20,15 +18,7 @@ beforeEach(function() {
 
   // Override configuration of services to include fakeredis
   this.assistantJs.addConfiguration({
-    "core:services": {
-      sessionStorage: {
-        factoryName: "redis",
-        configuration: {
-          redisClient: fakeRedis.createClient(6379, `redis-spec-setup-${++specSetupId}`, { fast: true }),
-          maxLifeTime: 3600,
-        },
-      },
-    },
+    "core:services": serviceConfiguration,
   });
 
   // Prepare all other steps

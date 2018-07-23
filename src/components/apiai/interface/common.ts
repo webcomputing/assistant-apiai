@@ -1,5 +1,11 @@
+/**
+ * Represents different platforms that a rich message can be intended for.
+ */
 export type IntentMessagePlatform = "PLATFORM_UNSPECIFIED" | "FACEBOOK" | "SLACK" | "TELEGRAM" | "KIK" | "SKYPE" | "LINE" | "VIBER" | "ACTIONS_ON_GOOGLE";
 
+/**
+ * The collection of rich messages corresponding to the Response field in the Dialogflow console.
+ */
 export interface IntentMessage {
   /** Optional. The platform that this message is intended for. */
   platform?: IntentMessagePlatform;
@@ -30,11 +36,17 @@ export interface IntentMessage {
   carouselSelect?: IntentMessageCarouselSelect;
 }
 
+/**
+ * The text response message.
+ */
 export interface IntentMessageText {
   /** Optional. The collection of the agent's responses. */
   text?: string[];
 }
 
+/**
+ * The image response message.
+ */
 export interface IntentMessageImage {
   /** Optional. The public URI to an image file. */
   imageUri?: string;
@@ -42,6 +54,9 @@ export interface IntentMessageImage {
   accessibilityText?: string;
 }
 
+/**
+ * The quick replies response message.
+ */
 export interface IntentMessageQuickReplies {
   /** Optional. The title of the collection of quick replies. */
   title?: string;
@@ -49,6 +64,9 @@ export interface IntentMessageQuickReplies {
   quickReplies?: string[];
 }
 
+/**
+ * The card response message.
+ */
 export interface IntentMessageCard {
   /** Optional. The title of the card. */
   title?: string;
@@ -59,6 +77,9 @@ export interface IntentMessageCard {
   buttons?: IntentMessageCardButton[];
 }
 
+/**
+ * Optional. Contains information about a button.
+ */
 export interface IntentMessageCardButton {
   /**  Optional. The text to show on the button. */
   text?: string;
@@ -66,11 +87,18 @@ export interface IntentMessageCardButton {
   postback?: string;
 }
 
+/**
+ * The collection of simple response candidates.
+ * This message in QueryResult.fulfillment_messages and WebhookResponse.fulfillment_messages should contain only one SimpleResponse.
+ */
 export interface IntentMessageSimpleResponses {
   /** The voice and text-only responses for Actions on Google. */
   simpleResponses?: IntentMessageSimpleResponse[];
 }
 
+/**
+ * The simple response message containing speech or text.
+ */
 export interface IntentMessageSimpleResponse {
   /** One of textToSpeech or ssml must be provided. The plain text of the speech output. Mutually exclusive with ssml. */
   textToSpeech?: string;
@@ -80,6 +108,9 @@ export interface IntentMessageSimpleResponse {
   displayText?: string;
 }
 
+/**
+ * The basic card message. Useful for displaying information.
+ */
 export interface IntentMessageBasicCard {
   /** Optional. The title of the card. */
   title?: string;
@@ -93,6 +124,9 @@ export interface IntentMessageBasicCard {
   buttons?: IntentMessageBasicCardButton[];
 }
 
+/**
+ * The button object that appears at the bottom of a card.
+ */
 export interface IntentMessageBasicCardButton {
   /** Required. The title of the button. */
   title: string;
@@ -100,21 +134,33 @@ export interface IntentMessageBasicCardButton {
   openUriAction: IntentMessageBasicCardButtonOpenUriAction;
 }
 
+/**
+ * Opens the given URI.
+ */
 export interface IntentMessageBasicCardButtonOpenUriAction {
   /** Required. The HTTP or HTTPS scheme URI. */
   uri: string;
 }
 
+/**
+ * The collection of suggestions.
+ */
 export interface IntentMessageSuggestions {
   /** Required. The list of suggested replies. */
   suggestions: IntentMessageSuggestion[];
 }
 
+/**
+ * The suggestion chip message that the user can tap to quickly post a reply to the conversation.
+ */
 export interface IntentMessageSuggestion {
   /** Required. The text shown the in the suggestion chip. */
   title: string;
 }
 
+/**
+ * The suggestion chip message that allows the user to jump out to the app or website associated with this agent.
+ */
 export interface IntentMessageLinkOutSuggestion {
   /** Required. The name of the app or site this chip is linking to. */
   destinationName: string;
@@ -122,6 +168,9 @@ export interface IntentMessageLinkOutSuggestion {
   uri?: string;
 }
 
+/**
+ * The card for presenting a list of options to select from.
+ */
 export interface IntentMessageListSelect {
   /** Optional. The overall title of the list. */
   title?: string;
@@ -129,6 +178,9 @@ export interface IntentMessageListSelect {
   items: IntentMessageListSelectItem[];
 }
 
+/**
+ * An item in the list.
+ */
 export interface IntentMessageListSelectItem {
   /** Required. Additional information about this option. */
   info: IntentMessageSelectItemInfo;
@@ -140,6 +192,9 @@ export interface IntentMessageListSelectItem {
   image?: IntentMessageImage;
 }
 
+/**
+ * Additional info about the select item for when it is triggered in a dialog.
+ */
 export interface IntentMessageSelectItemInfo {
   /** Required. A unique key that will be sent back to the agent if this response is given. */
   key: string;
@@ -147,11 +202,17 @@ export interface IntentMessageSelectItemInfo {
   synonyms?: string[];
 }
 
+/**
+ * The card for presenting a carousel of options to select from.
+ */
 export interface IntentMessageCarouselSelect {
   /** Required. Carousel items. */
   items: IntentMessageCarouselSelectItem[];
 }
 
+/**
+ * An item in the carousel.
+ */
 export interface IntentMessageCarouselSelectItem {
   /** Required. Additional info about the option item. */
   info: IntentMessageSelectItemInfo;
@@ -163,6 +224,11 @@ export interface IntentMessageCarouselSelectItem {
   image?: IntentMessageImage;
 }
 
+/**
+ * Current context of a user's request.
+ * This is helpful for differentiating phrases which may be vague or have
+ * different meanings depending on the user’s preferences, geographic location, the current page in an app, or the topic of conversation.
+ */
 export interface Context {
   /**
    * The unique identifier of the context. Format: projects/<Project ID>/agent/sessions/<Session ID>/contexts/<Context ID>,

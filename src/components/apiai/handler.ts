@@ -16,8 +16,8 @@ export class ApiAiHandler<CustomTypes extends ApiAiSpecificTypes> extends BasicH
     super(requestContext, extraction, killSession, responseHandlerExtensions);
   }
 
-  protected getBody(results: Partial<CustomTypes>): DialogflowInterface.ResponseBody<any> {
-    const response: DialogflowInterface.ResponseBody<any> = {};
+  protected getBody(results: Partial<CustomTypes>): DialogflowInterface.WebhookResponse<any> {
+    const response: DialogflowInterface.WebhookResponse<any> = {};
 
     if (results.voiceMessage) {
       response.fulfillmentText = results.voiceMessage.text;

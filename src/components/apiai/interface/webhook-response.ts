@@ -1,7 +1,7 @@
 import { Context, IntentMessage } from "./common";
 
 /**
- * The response JSON body sent from your service in JSON format
+ * The response JSON body sent from AssistantJS to Dialogflow
  * @example
  * {
  * "fulfillmentText": "string",
@@ -33,6 +33,9 @@ export interface KeyValue {
   [key: string]: any;
 }
 
+/**
+ * Makes the platform immediately invoke another sessions.detectIntent call internally with the specified event as input.
+ */
 export interface EventInput {
   /** Name of the event */
   name?: string;
