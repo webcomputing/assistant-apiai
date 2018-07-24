@@ -9,10 +9,11 @@ export const validRequestContext = {
     secretHeader2: "value2",
   },
   body: {
-    reponseId: "my-dialogflow-response-id",
+    responseId: "my-dialogflow-response-id",
     session: "my-dialogflow-session",
     queryResult: {
       queryText: "user's original agent query",
+      languageCode: "en",
       parameters: {
         param1: "param-value1",
         param2: "param-value2",
@@ -24,18 +25,17 @@ export const validRequestContext = {
             text: [""],
           },
         },
-      ],  
+      ],
       intent: {
         name: "my-unique-dialogflow-intent-name",
         displayName: "Matched Intent Name",
       },
       intentDetectionConfidence: 1,
-      languageCode: "en"
     },
     originalDetectIntentRequest: {
       payload: {
-        key1: "value1"
-      }
-    }
+        key1: "value1",
+      },
+    },
   },
 };

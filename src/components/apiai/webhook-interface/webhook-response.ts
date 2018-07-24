@@ -11,7 +11,7 @@ import { Context, IntentMessage } from "./common";
  * "followupEventInput": object
  * }
  */
-export interface WebhookResponse<Payload extends KeyValue> {
+export interface WebhookResponse<Payload> {
   /** Optional. The text to be shown on the screen. This value is passed directly to QueryResult.fulfillment_text. */
   fulfillmentText?: string;
   /**  Optional. The collection of rich messages to present to the user. This value is passed directly to QueryResult.fulfillment_messages. */
@@ -24,13 +24,6 @@ export interface WebhookResponse<Payload extends KeyValue> {
   outputContexts?: Context[];
   /** Optional. Makes the platform immediately invoke another sessions.detectIntent call internally with the specified event as input. */
   followupEventInput?: EventInput;
-}
-
-/**
- * Interface for key-value-pairs
- */
-export interface KeyValue {
-  [key: string]: any;
 }
 
 /**

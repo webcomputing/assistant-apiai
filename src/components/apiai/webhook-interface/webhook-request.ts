@@ -25,7 +25,7 @@ export type IntentDefaultResponsePlatforms =
  * "originalDetectIntentRequest": object
  * }
  */
-export interface WebhookRequest {
+export interface WebhookRequest<Payload> {
   /**  Unique id for request */
   responseId: string;
   /** Unique session id */
@@ -33,7 +33,7 @@ export interface WebhookRequest {
   /** Result of the conversation query or event processing. */
   queryResult: QueryResult;
   /** Full request coming from an integrated platform. (Google, Facebook Messenger, Slack, etc.) */
-  originalDetectIntentRequest: OriginalDetectIntentRequest;
+  originalDetectIntentRequest: OriginalDetectIntentRequest<Payload>;
 }
 
 /**
@@ -73,15 +73,13 @@ export interface QueryResult {
 /**
  * Full request coming from an integrated platform. (Facebook Messenger, Slack, etc.)
  */
-export interface OriginalDetectIntentRequest {
+export interface OriginalDetectIntentRequest<Payload> {
   /** The source of this request, e.g., google, facebook, slack. It is set by Dialogflow-owned servers. */
   source: string;
   /** Optional. The version of the protocol used for this request. This field is AoG-specific. */
   version?: string;
   /** Optional. This field is set to the value of QueryParameters.payload field passed in the request. */
-  payload?: {
-    [key: string]: any;
-  };
+  payload?: Payload;
 }
 
 /**
