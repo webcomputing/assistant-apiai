@@ -1,9 +1,9 @@
 import { BasicHandler, injectionNames, MinimalRequestExtraction, RequestContext, ResponseHandlerExtensions } from "assistant-source";
 import { inject, injectable } from "inversify";
-import { ApiAISpecificHandable, ApiAiSpecificTypes, DialogflowInterface } from "./public-interfaces";
+import { ApiAiSpecificHandable, ApiAiSpecificTypes, DialogflowInterface } from "./public-interfaces";
 
 @injectable()
-export class ApiAiHandler<CustomTypes extends ApiAiSpecificTypes> extends BasicHandler<CustomTypes> implements ApiAISpecificHandable<CustomTypes> {
+export class ApiAiHandler<CustomTypes extends ApiAiSpecificTypes> extends BasicHandler<CustomTypes> implements ApiAiSpecificHandable<CustomTypes> {
   public specificWhitelist: string[] = [];
 
   constructor(
@@ -11,7 +11,7 @@ export class ApiAiHandler<CustomTypes extends ApiAiSpecificTypes> extends BasicH
     @inject(injectionNames.current.extraction) extraction: MinimalRequestExtraction,
     @inject(injectionNames.current.killSessionService) killSession: () => Promise<void>,
     @inject(injectionNames.current.responseHandlerExtensions)
-    responseHandlerExtensions: ResponseHandlerExtensions<CustomTypes, ApiAISpecificHandable<CustomTypes>>
+    responseHandlerExtensions: ResponseHandlerExtensions<CustomTypes, ApiAiSpecificHandable<CustomTypes>>
   ) {
     super(requestContext, extraction, killSession, responseHandlerExtensions);
   }

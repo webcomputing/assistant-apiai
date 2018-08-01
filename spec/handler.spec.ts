@@ -1,11 +1,11 @@
 import { SpecHelper } from "assistant-source";
-import { ApiAISpecificHandable, ApiAiSpecificTypes } from "../src/assistant-apiai";
+import { ApiAiSpecificHandable, ApiAiSpecificTypes } from "../src/assistant-apiai";
 import { ApiAiSpecHelper } from "../src/spec-helper";
 
 interface CurrentThisContext {
   specHelper: SpecHelper;
   apiAiSpecHelper: ApiAiSpecHelper;
-  handler: ApiAISpecificHandable<ApiAiSpecificTypes>;
+  handler: ApiAiSpecificHandable<ApiAiSpecificTypes>;
   results: Partial<ApiAiSpecificTypes>;
 }
 
