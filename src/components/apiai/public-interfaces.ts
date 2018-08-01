@@ -15,12 +15,13 @@ export interface ExtractionInterface extends MinimalRequestExtraction, OptionalE
 /**
  * Add custom types here
  */
+// tslint:disable-next-line:no-empty-interface
 export interface ApiAiSpecificTypes extends BasicAnswerTypes {}
 
 /**
  * Add custom methods for here
  */
-export interface ApiAiSpecificHandable<CustomTypes extends ApiAiSpecificTypes> extends BasicHandable<CustomTypes> {}
+export interface ApiAiSpecificHandable<MergedTypes extends ApiAiSpecificTypes> extends BasicHandable<MergedTypes> {}
 
 export interface DialogflowRequestContext extends RequestContext {
   body: DialogflowInterface.WebhookRequest<any>;
