@@ -41,7 +41,17 @@ export interface Required {
 }
 ```
 
-Merge your existing AssistantJS configuration from `config/components.ts` with `ApiaiConfigurationAttribute` to get ready.
+Merge your existing AssistantJS configuration from `config/components.ts` with `ApiaiConfigurationAttribute`.
+
+After that add the Dialogflow-Types and the Dialogflow-Handler to the file config/handler.ts. Replace or remove `ADD_OTHER_TYPES_HERE` and `ADD_OTHER_HANDLER_HERE<MergedAnswerTypes>` if needed.
+```typescript
+import { BasicAnswerTypes, BasicHandler, State } from "assistant-source";
+
+export type MergedAnswerTypes = ApiAiSpecificTypes & ADD_OTHER_TYPES_HERE;
+export type MergedHandler = ApiAiHandler<CurrentAnswerTypes> & ADD_OTHER_HANDLER_HERE<MergedAnswerTypes>;
+
+export type MergedSetupSet = State.SetupSet<MergedAnswerTypes, MergedHandler>
+```
 
 [1]: https://dialogflow.com/
 [2]: http://assistantjs.org
