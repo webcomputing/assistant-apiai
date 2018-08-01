@@ -9,22 +9,22 @@ import { Configuration } from "./private-interfaces";
 
 @injectable()
 export class Builder implements PlatformGenerator.Extension {
-  @inject("meta:component//apiai") private component: Component<Configuration.Runtime>;
+  constructor(@inject("meta:component//apiai") private component: Component<Configuration.Runtime>) {}
 
-  execute(
+  public execute(
     language: string,
     buildDir: string,
     intentConfigurations: PlatformGenerator.IntentConfiguration[],
     parameterMapping: PlatformGenerator.EntityMapping
   ) {
-    let currentBuildDir = buildDir + "/apiai";
+    const currentBuildDir = buildDir + "/apiai";
     let intentDirectory = currentBuildDir + "/intents";
 
     console.log("=============     PROCESSING ON APIAI     ============");
     console.log("Intents: #" + intentConfigurations.length + ", language: " + language);
 
     console.log("validating...");
-    let convertedIntents = this.prepareConfiguration(intentConfigurations);
+    const convertedIntents = this.prepareConfiguration(intentConfigurations);
 
     console.log("building intents (" + convertedIntents.length + ")...");
     let intents = this.buildIntents(convertedIntents, parameterMapping);
@@ -45,7 +45,7 @@ export class Builder implements PlatformGenerator.Extension {
     this.writePackageJSON(currentBuildDir);
 
     console.log("writing bundled zip...");
-    let zip = archiver("zip");
+    const zip = archiver("zip");
     let output = fs.createWriteStream(currentBuildDir + "/bundle.zip");
     zip.pipe(output);
     zip.directory(intentDirectory + "/", "intents/");
@@ -57,7 +57,7 @@ export class Builder implements PlatformGenerator.Extension {
   /** Returns Intent Schema for Amazon Alexa Config
    * @param preparedIntentConfiguration: Result of prepareConfiguration()
    */
-  buildIntents(preparedIntentConfiguration: PreparedIntentConfiguration[], parameterMapping: PlatformGenerator.EntityMapping) {
+  public buildIntents(preparedIntentConfiguration: PreparedIntentConfiguration[], parameterMapping: PlatformGenerator.EntityMapping) {
     return preparedIntentConfiguration.map(config => {
       const intent = {
         id: uuid(),
@@ -89,19 +89,15 @@ export class Builder implements PlatformGenerator.Extension {
     });
   }
 
-  private getUnixTime() {
-    return Math.floor(new Date().getTime() / 1000);
-  }
-
   /**
    * Write necessary package.json with version into folder
    */
-  writePackageJSON(currentBuildDir: string) {
+  public writePackageJSON(currentBuildDir: string) {
     fs.writeFileSync(currentBuildDir + "/package.json", JSON.stringify({ version: "1.0.0" }, null, 2));
   }
 
   /** Returns  */
-  buildDefaultIntent(): any {
+  public buildDefaultIntent(): any {
     const intent = {
       templates: [],
       userSays: [],
@@ -142,13 +138,13 @@ export class Builder implements PlatformGenerator.Extension {
    * @param utterance: Utterance string
    * @param parameterMapping: Mapping of parameters
    */
-  buildUtterance(utterance: string, parameterMapping: PlatformGenerator.EntityMapping) {
-    let utteranceData: {}[] = [];
-    let utteranceSplits = utterance.split(/\{[A-Za-z0-9_äÄöÖüÜß]+?\|[A-Za-z0-9_äÄöÖüÜß]+?\}/g);
-    let utteranceParams = utterance.match(/\{([A-Za-z0-9_äÄöÖüÜß]+)?\|([A-Za-z0-9_äÄöÖüÜß]+)?\}/g);
+  public buildUtterance(utterance: string, parameterMapping: PlatformGenerator.EntityMapping) {
+    const utteranceData: Array<{}> = [];
+    const utteranceSplits = utterance.split(/\{[A-Za-z0-9_äÄöÖüÜß]+?\|[A-Za-z0-9_äÄöÖüÜß]+?\}/g);
+    const utteranceParams = utterance.match(/\{([A-Za-z0-9_äÄöÖüÜß]+)?\|([A-Za-z0-9_äÄöÖüÜß]+)?\}/g);
 
     // Create array ob parameter objects
-    let utteranceParamObjects: { text: string; alias: string; userDefined: boolean; meta: string }[] = [];
+    let utteranceParamObjects: Array<{ text: string; alias: string; userDefined: boolean; meta: string }> = [];
     if (utteranceParams !== null) {
       utteranceParamObjects = utteranceParams.map(parameter => {
         const parameterText = parameter.replace(/\{|\|([A-Za-z0-9_äÄöÖüÜß]+)\}/g, "");
@@ -182,19 +178,19 @@ export class Builder implements PlatformGenerator.Extension {
   }
 
   /** Returns BuildIntentConfiguration[] but with all unspeakable intents filtered out. Checks all other platform intents for having utterances defined. */
-  prepareConfiguration(intentConfigurations: PlatformGenerator.IntentConfiguration[]): PreparedIntentConfiguration[] {
+  public prepareConfiguration(intentConfigurations: PlatformGenerator.IntentConfiguration[]): PreparedIntentConfiguration[] {
     // Leave out unspeakable Intent
-    let withoutUnspeakable = intentConfigurations.filter(config => typeof config.intent === "string" || GenericIntent.isSpeakable(config.intent));
+    const withoutUnspeakable = intentConfigurations.filter(config => typeof config.intent === "string" || GenericIntent.isSpeakable(config.intent));
 
     // Convert all platform intents to apiai strings
-    let preparedSet = withoutUnspeakable
+    const preparedSet = withoutUnspeakable
       .map(config => {
-        return Object.assign(config, { intent: typeof config.intent === "string" ? config.intent : genericIntentToApiai[config.intent] });
+        return {...config,  intent: typeof config.intent === "string" ? config.intent : genericIntentToApiai[config.intent]};
       })
       .filter(config => typeof config.intent === "string");
 
     // Leave out all intents without utterances, but tell user about this
-    let withoutUndefinedUtterances: PreparedIntentConfiguration[] = [];
+    const withoutUndefinedUtterances: PreparedIntentConfiguration[] = [];
     preparedSet.forEach(config => {
       if (typeof config.intent === "string" && (typeof config.utterances === "undefined" || config.utterances.length === 0)) {
         console.warn("You did not specify any utterances for intent: '" + config.intent + "'. This makes this intent not callable. Omitting.");
@@ -212,20 +208,25 @@ export class Builder implements PlatformGenerator.Extension {
     return withoutUndefinedUtterances.concat([{ intent: "invokeGenericIntent", entities: [], utterances: [], entitySets: {} }]);
   }
 
+  private getUnixTime() {
+    return Math.floor(new Date().getTime() / 1000);
+  }
+
   private makeIntentParameters(
     parameters: string[],
     parameterMapping: PlatformGenerator.EntityMapping
-  ): { name: string; dataType: string; value: string; isList: boolean }[] {
+  ): Array<{ name: string; dataType: string; value: string; isList: boolean }> {
     return parameters.map(name => {
-      return { name: name, dataType: this.getParameterTypeFor(name, parameterMapping), value: "$" + name, isList: false };
+      return { name, dataType: this.getParameterTypeFor(name, parameterMapping), value: "$" + name, isList: false };
     });
   }
 
   private getParameterTypeFor(parameterName: string, parameterMapping: PlatformGenerator.EntityMapping) {
-    let config = this.component.configuration;
+    const config = this.component.configuration;
 
-    if (typeof config.entities === "undefined" || typeof config.entities[parameterMapping[parameterName]] === "undefined")
+    if (typeof config.entities === "undefined" || typeof config.entities[parameterMapping[parameterName]] === "undefined") {
       throw Error("Missing apiai configured type for entity '" + parameterName + "' (as " + parameterMapping[parameterName] + ").");
+    }
 
     return config.entities[parameterMapping[parameterName]];
   }

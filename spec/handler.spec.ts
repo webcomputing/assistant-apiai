@@ -1,38 +1,33 @@
-import { SpecHelper } from "../src/spec-helper";
+import { SpecHelper } from "assistant-source";
+import { ApiAISpecificHandable, ApiAiSpecificTypes } from "../src/assistant-apiai";
+import { ApiAiSpecHelper } from "../src/spec-helper";
+
+interface CurrentThisContext {
+  specHelper: SpecHelper;
+  apiAiSpecHelper: ApiAiSpecHelper;
+  handler: ApiAISpecificHandable<ApiAiSpecificTypes>;
+  results: Partial<ApiAiSpecificTypes>;
+}
 
 describe("Handler", function() {
-  let apiaiHelper: SpecHelper;
-
-  beforeEach(function() {
-    apiaiHelper = new SpecHelper(this.specHelper);
+  beforeEach(async function(this: CurrentThisContext) {
+    this.apiAiSpecHelper = new ApiAiSpecHelper(this.specHelper);
+    this.handler = await this.apiAiSpecHelper.pretendIntentCalled("test");
+    this.results = this.specHelper.getResponseResults();
   });
 
-  it("is correctly linked to spec setup", function() {
-    return apiaiHelper.pretendIntentCalled("test").then(handler => {
-      expect(handler.endSession).toBeTruthy();
-      expect(handler.voiceMessage).toBe("Hello from api.ai!");
-    });
+  it("is correctly linked to spec setup", function(this: CurrentThisContext) {
+    expect(this.results.shouldSessionEnd).toBeTruthy();
+    expect(this.results.voiceMessage).toBeTruthy();
+    expect(this.results.voiceMessage!.text).toBe("Hello from api.ai!");
   });
 
-  it("sets voice message as display text per default (by using 'undefined', which makes dialogflow apply this default)", function() {
-    return apiaiHelper.pretendIntentCalled("test").then(handler => {
-      expect((handler as any).getBody().displayText).toBeUndefined();
-    });
-  });
-
-  describe("with chat bubbles given", function() {
-    it("concatenates bubbles to displayText", function() {
-      return apiaiHelper.pretendIntentCalled("chatTest").then(handler => {
-        expect((handler as any).getBody().displayText).toBe("Bubble 1 Bubble 2");
-      });
-    });
-  });
-
-  it("cannot be executed twice", function() {
-    return apiaiHelper.pretendIntentCalled("test").then(handler => {
-      expect(function() {
-        handler.sendResponse();
-      }).toThrow();
-    });
+  it("cannot be executed twice", async function(this: CurrentThisContext) {
+    try {
+      await this.handler.send();
+      fail("should throw error");
+    } catch (e) {
+      expect(true).toBe(true);
+    }
   });
 });

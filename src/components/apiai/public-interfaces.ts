@@ -1,10 +1,6 @@
-import {
-  MinimalRequestExtraction,
-  MinimalResponseHandler,
-  OptionalExtractions,
-  OptionalHandlerFeatures
-  } from "assistant-source";
+import { BasicAnswerTypes, BasicHandable, MinimalRequestExtraction, OptionalExtractions, RequestContext } from "assistant-source";
 import { Configuration } from "./private-interfaces";
+import * as DialogflowInterface from "./webhook-interface";
 
 /** Configuration of apiai component */
 export interface ApiaiConfiguration extends Partial<Configuration.Defaults>, Configuration.Required {}
@@ -14,16 +10,20 @@ export interface ApiaiConfigurationAttribute {
   apiai: ApiaiConfiguration;
 }
 
-export interface Extraction
-  extends MinimalRequestExtraction,
-    OptionalExtractions.SpokenText,
-    OptionalExtractions.Timestamp,
-    OptionalExtractions.AdditionalParameters {}
+export interface ExtractionInterface extends MinimalRequestExtraction, OptionalExtractions.SpokenText, OptionalExtractions.AdditionalParameters {}
 
-export interface HandlerInterface extends MinimalResponseHandler, OptionalHandlerFeatures.GUI.ChatBubbles {
-  getBody(): {
-    data: any;
-    speech?: string;
-    displayText?: string;
-  };
+/**
+ * Add custom types here
+ */
+export interface ApiAiSpecificTypes extends BasicAnswerTypes {}
+
+/**
+ * Add custom methods for here
+ */
+export interface ApiAISpecificHandable<CustomTypes extends ApiAiSpecificTypes> extends BasicHandable<CustomTypes> {}
+
+export interface DialogflowRequestContext extends RequestContext {
+  body: DialogflowInterface.WebhookRequest<any>;
 }
+
+export { DialogflowInterface };
