@@ -168,9 +168,9 @@ export class Builder implements PlatformGenerator.Extension {
 
     return {
       id: uuid(),
-      count: 0,
-      isTemplate: false,
       data: utteranceData,
+      isTemplate: false,
+      count: 0,
     };
   }
   /** Returns BuildIntentConfiguration[] but with all unspeakable intents filtered out. Checks all other platform intents for having utterances defined. */
