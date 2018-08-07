@@ -18,7 +18,7 @@ export class Builder implements PlatformGenerator.Extension {
     parameterMapping: PlatformGenerator.EntityMapping
   ) {
     const currentBuildDir = buildDir + "/apiai";
-    let intentDirectory = currentBuildDir + "/intents";
+    const intentDirectory = currentBuildDir + "/intents";
 
     console.log("=============     PROCESSING ON APIAI     ============");
     console.log("Intents: #" + intentConfigurations.length + ", language: " + language);
@@ -27,7 +27,7 @@ export class Builder implements PlatformGenerator.Extension {
     const convertedIntents = this.prepareConfiguration(intentConfigurations);
 
     console.log("building intents (" + convertedIntents.length + ")...");
-    let intents = this.buildIntents(convertedIntents, parameterMapping);
+    const intents = this.buildIntents(convertedIntents, parameterMapping);
     intents.push(this.buildDefaultIntent());
 
     console.log("creating build directory: " + currentBuildDir);
@@ -46,7 +46,7 @@ export class Builder implements PlatformGenerator.Extension {
 
     console.log("writing bundled zip...");
     const zip = archiver("zip");
-    let output = fs.createWriteStream(currentBuildDir + "/bundle.zip");
+    const output = fs.createWriteStream(currentBuildDir + "/bundle.zip");
     zip.pipe(output);
     zip.directory(intentDirectory + "/", "intents/");
     zip.file(currentBuildDir + "/package.json", { name: "package.json" });
@@ -134,23 +134,25 @@ export class Builder implements PlatformGenerator.Extension {
     return result;
   }
 
-  /** Returns single utterance json for intent schema
+  /**
+   * Returns single utterance json for intent schema
    * @param utterance: Utterance string
    * @param parameterMapping: Mapping of parameters
    */
   public buildUtterance(utterance: string, parameterMapping: PlatformGenerator.EntityMapping) {
     const utteranceData: Array<{}> = [];
-    const utteranceSplits = utterance.split(/\{[A-Za-z0-9_äÄöÖüÜß]+?\|[A-Za-z0-9_äÄöÖüÜß]+?\}/g);
-    const utteranceParams = utterance.match(/\{([A-Za-z0-9_äÄöÖüÜß]+)?\|([A-Za-z0-9_äÄöÖüÜß]+)?\}/g);
+    // Separate simple text from entities
+    const utteranceSplits = utterance.split(/\{([A-Za-z0-9_äÄöÖüÜß]*)\}/g).filter((element, index) => index % 2 === 0);
+    // Extract entities from utterance
+    const utteranceParams = utterance.match(/\{([A-Za-z0-9_äÄöÖüÜß]*)\}/g);
 
-    // Create array ob parameter objects
+    // Create array of parameter objects
     let utteranceParamObjects: Array<{ text: string; alias: string; userDefined: boolean; meta: string }> = [];
     if (utteranceParams !== null) {
       utteranceParamObjects = utteranceParams.map(parameter => {
-        const parameterText = parameter.replace(/\{|\|([A-Za-z0-9_äÄöÖüÜß]+)\}/g, "");
-        parameter = parameter.replace(/\{([A-Za-z0-9_äÄöÖüÜß]+)\||\}/g, "");
+        parameter = parameter.replace(/\{|\}/g, "");
         return {
-          text: parameterText,
+          text: parameter,
           alias: parameter,
           userDefined: true,
           meta: this.getParameterTypeFor(parameter, parameterMapping),
@@ -160,23 +162,17 @@ export class Builder implements PlatformGenerator.Extension {
 
     // Create resulting array in zip style
     for (let i = 0; i < utteranceSplits.length; i++) {
-      if (utteranceSplits[i].length > 0) {
-        utteranceData.push({ text: utteranceSplits[i], userDefined: false });
-      }
-      if (typeof utteranceParamObjects[i] !== "undefined") {
-        utteranceData.push(utteranceParamObjects[i]);
-      }
+      if (utteranceSplits[i].length > 0) utteranceData.push({ text: utteranceSplits[i] });
+      if (typeof utteranceParamObjects[i] !== "undefined") utteranceData.push(utteranceParamObjects[i]);
     }
 
     return {
       id: uuid(),
-      data: utteranceData,
-      isTemplate: false,
       count: 0,
-      updated: this.getUnixTime(),
+      isTemplate: false,
+      data: utteranceData,
     };
   }
-
   /** Returns BuildIntentConfiguration[] but with all unspeakable intents filtered out. Checks all other platform intents for having utterances defined. */
   public prepareConfiguration(intentConfigurations: PlatformGenerator.IntentConfiguration[]): PreparedIntentConfiguration[] {
     // Leave out unspeakable Intent
@@ -185,7 +181,7 @@ export class Builder implements PlatformGenerator.Extension {
     // Convert all platform intents to apiai strings
     const preparedSet = withoutUnspeakable
       .map(config => {
-        return {...config,  intent: typeof config.intent === "string" ? config.intent : genericIntentToApiai[config.intent]};
+        return { ...config, intent: typeof config.intent === "string" ? config.intent : genericIntentToApiai[config.intent] };
       })
       .filter(config => typeof config.intent === "string");
 
