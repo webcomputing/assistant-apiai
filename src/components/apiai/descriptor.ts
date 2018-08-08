@@ -16,8 +16,8 @@ export const defaultConfiguration: Configuration.Defaults = {
 };
 
 export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
-  name: COMPONENT_NAME,
   defaultConfiguration,
+  name: COMPONENT_NAME,
   bindings: {
     root: (bindService, lookupService) => {
       bindService.bindExtension<RequestExtractor>(lookupService.lookup("core:unifier").getInterface("requestProcessor")).to(Extractor);

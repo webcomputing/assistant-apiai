@@ -7,6 +7,7 @@ import { v4 as uuid } from "uuid";
 import { genericIntentToApiai } from "./intent-dict";
 import { Configuration } from "./private-interfaces";
 
+// tslint:disable:no-console
 @injectable()
 export class Builder implements PlatformGenerator.Extension {
   constructor(@inject("meta:component//apiai") private component: Component<Configuration.Runtime>) {}
@@ -18,7 +19,7 @@ export class Builder implements PlatformGenerator.Extension {
     parameterMapping: PlatformGenerator.EntityMapping
   ) {
     const currentBuildDir = buildDir + "/apiai";
-    let intentDirectory = currentBuildDir + "/intents";
+    const intentDirectory = currentBuildDir + "/intents";
 
     console.log("=============     PROCESSING ON APIAI     ============");
     console.log("Intents: #" + intentConfigurations.length + ", language: " + language);
@@ -27,7 +28,7 @@ export class Builder implements PlatformGenerator.Extension {
     const convertedIntents = this.prepareConfiguration(intentConfigurations);
 
     console.log("building intents (" + convertedIntents.length + ")...");
-    let intents = this.buildIntents(convertedIntents, parameterMapping);
+    const intents = this.buildIntents(convertedIntents, parameterMapping);
     intents.push(this.buildDefaultIntent());
 
     console.log("creating build directory: " + currentBuildDir);
@@ -46,7 +47,7 @@ export class Builder implements PlatformGenerator.Extension {
 
     console.log("writing bundled zip...");
     const zip = archiver("zip");
-    let output = fs.createWriteStream(currentBuildDir + "/bundle.zip");
+    const output = fs.createWriteStream(currentBuildDir + "/bundle.zip");
     zip.pipe(output);
     zip.directory(intentDirectory + "/", "intents/");
     zip.file(currentBuildDir + "/package.json", { name: "package.json" });
@@ -54,7 +55,8 @@ export class Builder implements PlatformGenerator.Extension {
     console.log("=============          FINISHED.          =============");
   }
 
-  /** Returns Intent Schema for Amazon Alexa Config
+  /**
+   * Returns Intent Schema for Amazon Alexa Config
    * @param preparedIntentConfiguration: Result of prepareConfiguration()
    */
   public buildIntents(preparedIntentConfiguration: PreparedIntentConfiguration[], parameterMapping: PlatformGenerator.EntityMapping) {
@@ -134,7 +136,8 @@ export class Builder implements PlatformGenerator.Extension {
     return result;
   }
 
-  /** Returns single utterance json for intent schema
+  /**
+   * Returns single utterance json for intent schema
    * @param utterance: Utterance string
    * @param parameterMapping: Mapping of parameters
    */
@@ -148,12 +151,12 @@ export class Builder implements PlatformGenerator.Extension {
     if (utteranceParams !== null) {
       utteranceParamObjects = utteranceParams.map(parameter => {
         const parameterText = parameter.replace(/\{|\|([A-Za-z0-9_äÄöÖüÜß]+)\}/g, "");
-        parameter = parameter.replace(/\{([A-Za-z0-9_äÄöÖüÜß]+)\||\}/g, "");
+        const finalParameter = parameter.replace(/\{([A-Za-z0-9_äÄöÖüÜß]+)\||\}/g, "");
         return {
           text: parameterText,
-          alias: parameter,
+          alias: finalParameter,
           userDefined: true,
-          meta: this.getParameterTypeFor(parameter, parameterMapping),
+          meta: this.getParameterTypeFor(finalParameter, parameterMapping),
         };
       });
     }
@@ -185,7 +188,7 @@ export class Builder implements PlatformGenerator.Extension {
     // Convert all platform intents to apiai strings
     const preparedSet = withoutUnspeakable
       .map(config => {
-        return {...config,  intent: typeof config.intent === "string" ? config.intent : genericIntentToApiai[config.intent]};
+        return { ...config, intent: typeof config.intent === "string" ? config.intent : genericIntentToApiai[config.intent] };
       })
       .filter(config => typeof config.intent === "string");
 

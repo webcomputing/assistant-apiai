@@ -1,4 +1,4 @@
-import {  HandlerProxyFactory, injectionNames, intent as Intent, PlatformSpecHelper, RequestContext, SpecHelper } from "assistant-source";
+import { HandlerProxyFactory, injectionNames, intent as Intent, PlatformSpecHelper, RequestContext, SpecHelper } from "assistant-source";
 import { ApiAiHandler } from "./components/apiai/handler";
 import { ApiAiSpecificTypes, ExtractionInterface } from "./components/apiai/public-interfaces";
 
@@ -22,6 +22,7 @@ export class ApiAiSpecHelper implements PlatformSpecHelper<ApiAiSpecificTypes, A
       path: "/apiai",
       body: {},
       headers: {},
+      // tslint:disable-next-line:no-empty
       responseCallback: () => {},
       ...additionalContext,
     };

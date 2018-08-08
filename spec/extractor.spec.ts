@@ -1,6 +1,6 @@
 import {} from "assistant-source";
+// tslint:disable-next-line:no-submodule-imports
 import { componentInterfaces } from "assistant-source/lib/components/unifier/private-interfaces";
-import { Extractor } from "../src/components/apiai/extractor";
 import { validRequestContext } from "./support/mocks/request-context";
 
 describe("this.extractor", function() {
@@ -93,7 +93,7 @@ describe("this.extractor", function() {
         language: "en",
         platform: this.extractor.component.name,
         spokenText: "user's original agent query",
-        additionalParameters: { key1: "value1"}
+        additionalParameters: { key1: "value1" },
       });
       done();
     });
