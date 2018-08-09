@@ -152,18 +152,10 @@ export class Builder implements PlatformGenerator.Extension {
     let utteranceParamObjects: Array<{ text: string; alias: string; userDefined: boolean; meta: string }> = [];
     if (utteranceParams !== null) {
       utteranceParamObjects = utteranceParams.map(parameter => {
-<<<<<<< HEAD
-        parameter = parameter.replace(/\{|\}/g, "");
+        const finalParameter = parameter.replace(/\{|\}/g, "");
         return {
-          text: parameter,
-          alias: parameter,
-=======
-        const parameterText = parameter.replace(/\{|\|([A-Za-z0-9_äÄöÖüÜß]+)\}/g, "");
-        const finalParameter = parameter.replace(/\{([A-Za-z0-9_äÄöÖüÜß]+)\||\}/g, "");
-        return {
-          text: parameterText,
+          text: finalParameter,
           alias: finalParameter,
->>>>>>> novaal/feature/newResponseHandler
           userDefined: true,
           meta: this.getParameterTypeFor(finalParameter, parameterMapping),
         };
