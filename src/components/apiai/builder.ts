@@ -7,6 +7,7 @@ import { v4 as uuid } from "uuid";
 import { genericIntentToApiai } from "./intent-dict";
 import { Configuration } from "./private-interfaces";
 
+// tslint:disable:no-console
 @injectable()
 export class Builder implements PlatformGenerator.Extension {
   constructor(@inject("meta:component//apiai") private component: Component<Configuration.Runtime>) {}
@@ -54,7 +55,8 @@ export class Builder implements PlatformGenerator.Extension {
     console.log("=============          FINISHED.          =============");
   }
 
-  /** Returns Intent Schema for Amazon Alexa Config
+  /**
+   * Returns Intent Schema for Amazon Alexa Config
    * @param preparedIntentConfiguration: Result of prepareConfiguration()
    */
   public buildIntents(preparedIntentConfiguration: PreparedIntentConfiguration[], parameterMapping: PlatformGenerator.EntityMapping) {
@@ -150,12 +152,20 @@ export class Builder implements PlatformGenerator.Extension {
     let utteranceParamObjects: Array<{ text: string; alias: string; userDefined: boolean; meta: string }> = [];
     if (utteranceParams !== null) {
       utteranceParamObjects = utteranceParams.map(parameter => {
+<<<<<<< HEAD
         parameter = parameter.replace(/\{|\}/g, "");
         return {
           text: parameter,
           alias: parameter,
+=======
+        const parameterText = parameter.replace(/\{|\|([A-Za-z0-9_äÄöÖüÜß]+)\}/g, "");
+        const finalParameter = parameter.replace(/\{([A-Za-z0-9_äÄöÖüÜß]+)\||\}/g, "");
+        return {
+          text: parameterText,
+          alias: finalParameter,
+>>>>>>> novaal/feature/newResponseHandler
           userDefined: true,
-          meta: this.getParameterTypeFor(parameter, parameterMapping),
+          meta: this.getParameterTypeFor(finalParameter, parameterMapping),
         };
       });
     }

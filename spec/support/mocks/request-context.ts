@@ -1,4 +1,5 @@
 export const validRequestContext = {
+  // tslint:disable-next-line:no-empty
   responseCallback: () => {},
   path: "/apiai",
   method: "POST",

@@ -1,4 +1,4 @@
-import { intent as Intent, PlatformSpecHelper, RequestContext, SpecHelper } from "assistant-source";
+import { HandlerProxyFactory, injectionNames, intent as Intent, PlatformSpecHelper, RequestContext, SpecHelper } from "assistant-source";
 import { ApiAiHandler } from "./components/apiai/handler";
 import { ApiAiSpecificTypes, ExtractionInterface } from "./components/apiai/public-interfaces";
 
@@ -22,6 +22,7 @@ export class ApiAiSpecHelper implements PlatformSpecHelper<ApiAiSpecificTypes, A
       path: "/apiai",
       body: {},
       headers: {},
+      // tslint:disable-next-line:no-empty
       responseCallback: () => {},
       ...additionalContext,
     };
@@ -40,6 +41,11 @@ export class ApiAiSpecHelper implements PlatformSpecHelper<ApiAiSpecificTypes, A
       await this.specSetup.runMachine();
     }
 
-    return this.specSetup.setup.container.inversifyInstance.get<ApiAiHandler<ApiAiSpecificTypes>>("apiai:current-response-handler");
+    const proxyFactory = this.specSetup.setup.container.inversifyInstance.get<HandlerProxyFactory>(injectionNames.handlerProxyFactory);
+
+    const currentHandler = this.specSetup.setup.container.inversifyInstance.get<ApiAiHandler<ApiAiSpecificTypes>>("apiai:current-response-handler");
+    const proxiedHandler = proxyFactory.createHandlerProxy(currentHandler);
+
+    return proxiedHandler;
   }
 }

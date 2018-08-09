@@ -55,10 +55,10 @@ export class Extractor implements RequestExtractor {
       if (headersAreValid) {
         this.logger.debug({ requestId: context.id }, "Request matched for dialogflow.");
         return true;
-      } else {
-        this.logger.warn({ requestId: context.id }, "Given headers did not match configured authenticationHeaders. Aborting.");
-        return false;
       }
+
+      this.logger.warn({ requestId: context.id }, "Given headers did not match configured authenticationHeaders. Aborting.");
+      return false;
     }
   }
 
@@ -129,7 +129,7 @@ export class Extractor implements RequestExtractor {
     return (context.body && context.body.originalDetectIntentRequest && context.body.originalDetectIntentRequest.payload) || {};
   }
 
-  public static makeIntentStringToGenericIntent(intent: string): GenericIntent | null {
-    return apiaiToGenericIntent.hasOwnProperty(intent) ? apiaiToGenericIntent[intent] : null;
+  public static makeIntentStringToGenericIntent(intentName: string): GenericIntent | null {
+    return apiaiToGenericIntent.hasOwnProperty(intentName) ? apiaiToGenericIntent[intentName] : null;
   }
 }
