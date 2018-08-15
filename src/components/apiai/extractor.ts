@@ -84,7 +84,8 @@ export class Extractor implements RequestExtractor {
     if (
       typeof context.body.queryResult === "undefined" ||
       typeof context.body.queryResult.intent === "undefined" ||
-      typeof context.body.queryResult.intent.displayName !== "string"
+      typeof context.body.queryResult.intent.displayName !== "string" ||
+      context.body.queryResult.intent.displayName === "__unhandled"
     ) {
       return GenericIntent.Unhandled;
     }
