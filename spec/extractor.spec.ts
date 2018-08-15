@@ -83,19 +83,40 @@ describe("this.extractor", function() {
   });
 
   describe("extract", function() {
-    it("returns correct extraction", async function(done) {
-      this.extraction = await this.extractor.extract(this.context);
+    describe("with valid request", function() {
+      it("returns correct extraction", async function(done) {
+        this.extraction = await this.extractor.extract(this.context);
 
-      expect(this.extraction).toEqual({
-        sessionID: "my-dialogflow-session",
-        intent: "Matched Intent Name",
-        entities: { param1: "param-value1", param2: "param-value2" },
-        language: "en",
-        platform: this.extractor.component.name,
-        spokenText: "user's original agent query",
-        additionalParameters: { key1: "value1" },
+        expect(this.extraction).toEqual({
+          sessionID: "my-dialogflow-session",
+          intent: "Matched Intent Name",
+          entities: { param1: "param-value1", param2: "param-value2" },
+          language: "en",
+          platform: this.extractor.component.name,
+          spokenText: "user's original agent query",
+          additionalParameters: { key1: "value1" },
+        });
+        done();
       });
-      done();
+    });
+
+    describe("with unhandled intent", function() {
+      beforeEach(async function() {
+        this.context.body.queryResult.intent.displayName = "__unhandled";
+        this.extraction = await this.extractor.extract(this.context);
+      });
+
+      it("returns unhandeld intent", async function() {
+        expect(this.extraction).toEqual({
+          sessionID: "my-dialogflow-session",
+          intent: 2,
+          entities: { param1: "param-value1", param2: "param-value2" },
+          language: "en",
+          platform: this.extractor.component.name,
+          spokenText: "user's original agent query",
+          additionalParameters: { key1: "value1" },
+        });
+      });
     });
   });
 });
