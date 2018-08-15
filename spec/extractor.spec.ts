@@ -1,4 +1,4 @@
-import {} from "assistant-source";
+import { GenericIntent } from "assistant-source";
 // tslint:disable-next-line:no-submodule-imports
 import { componentInterfaces } from "assistant-source/lib/components/unifier/private-interfaces";
 import { validRequestContext } from "./support/mocks/request-context";
@@ -109,7 +109,7 @@ describe("this.extractor", function() {
       it("returns unhandeld intent", async function() {
         expect(this.extraction).toEqual({
           sessionID: "my-dialogflow-session",
-          intent: 2,
+          intent: GenericIntent.Unhandled,
           entities: { param1: "param-value1", param2: "param-value2" },
           language: "en",
           platform: this.extractor.component.name,
