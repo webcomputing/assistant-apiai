@@ -39,7 +39,7 @@
     "tslint": "^5.4.0",
     "tslint-config-airbnb": "^5.9.2",
     "tslint-config-prettier": "^1.13.0",
-    "typescript": "~2.9.2",
+    "typescript": "^2.9.2",
     "@types/jasmine": "^2.5.48",
     "inversify-components": "^0.4.0",
     "inversify": "4.1.1",
