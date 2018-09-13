@@ -1,5 +1,5 @@
 import * as archiver from "archiver";
-import { GenericIntent, PlatformGenerator } from "assistant-source";
+import { GenericIntent, PlatformGenerator, PlatformRequestExtraction } from "assistant-source";
 import * as fs from "fs";
 import { inject, injectable } from "inversify";
 import { Component } from "inversify-components";
@@ -185,7 +185,7 @@ export class Builder implements PlatformGenerator.Extension {
    * @param entityMapping Mapping of entities
    * @param customEntityMapping Mapping of custom entities
    */
-  public buildUtterance(utterance: string, entityMapping, customEntityMapping) {
+  public buildUtterance(utterance: string, entityMapping: PlatformGenerator.EntityMapping, customEntityMapping: PlatformGenerator.CustomEntityMapping) {
     const result = {
       id: uuid(),
       count: 0,
@@ -204,7 +204,6 @@ export class Builder implements PlatformGenerator.Extension {
           if (typeof entity !== "undefined") {
             // Extract value and name of entity
             const [value, name] = entity.replace(/[{()}]/g, "").split("|", 2);
-            // Choose example mode
             const paramType = this.getParameterTypeFor(name, entityMapping, customEntityMapping);
             return {
               text: value,
@@ -224,7 +223,9 @@ export class Builder implements PlatformGenerator.Extension {
     }
 
     utteranceData.push({
-      text: utterance.replace(/\{\{(\w+)\}\}/g, (match: string, value: string) => this.getParameterTypeFor(value, entityMapping, customEntityMapping)),
+      text: utterance.replace(/\{\{(\w+)\}\}/g, (match: string, value: string) => {
+        return `${this.getParameterTypeFor(value, entityMapping, customEntityMapping)}:${value}`;
+      }),
       userDefined: false,
     });
     // Return utterance in template mode
@@ -291,7 +292,7 @@ export class Builder implements PlatformGenerator.Extension {
     const config = this.component.configuration;
 
     // Return custom data type
-    if (typeof customEntityMapping[entityMapping[parameterName]] !== "undefined") {
+    if (typeof customEntityMapping[entityMapping[parameterName]] !== "undefined" && typeof config.entities[entityMapping[parameterName]] === "undefined") {
       return `@${entityMapping[parameterName]}`;
     }
 
