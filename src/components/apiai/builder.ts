@@ -1,6 +1,5 @@
 import * as archiver from "archiver";
 import { GenericIntent, PlatformGenerator } from "assistant-source";
-import { NONAME } from "dns";
 import * as fs from "fs";
 import { inject, injectable } from "inversify";
 import { Component } from "inversify-components";
