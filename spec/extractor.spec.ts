@@ -103,6 +103,7 @@ describe("this.extractor", function() {
     describe("with unhandled intent", function() {
       beforeEach(async function() {
         this.context.body.queryResult.intent.displayName = "__unhandled";
+        this.context.body.queryResult.intent.isFallback = true;
         this.extraction = await this.extractor.extract(this.context);
       });
 
