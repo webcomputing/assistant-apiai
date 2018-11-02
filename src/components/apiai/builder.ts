@@ -192,11 +192,11 @@ export class Builder implements PlatformGenerator.Extension {
     };
     const utteranceData: Array<{}> = [];
     // Extract template entities from utterance
-    const utteranceTemplateEntities = utterance.match(/\{\{[[A-Za-z0-9_äÄöÖüÜß]+[\|]{1}(\w+)*\}\}/g);
+    const utteranceTemplateEntities = utterance.match(/\{\{[A-Za-z0-9_äÄöÖüÜß,;'"()-\s]+[\|]{1}(\w+)*\}\}/g);
 
     if (utteranceTemplateEntities) {
       // Separate simple text from entities and remove ending whitespaces
-      const utteranceSplits = utterance.split(/(\{\{[A-Za-z0-9_äÄöÖüÜß|]*\}\})/).filter(split => /\S/.test(split));
+      const utteranceSplits = utterance.split(/(\{\{[A-Za-z0-9_äÄöÖüÜß,;'"()-\|\s]*\}\})/).filter(split => /\S/.test(split));
       utteranceData.push(
         ...utteranceSplits.map(split => {
           // Check whether an entitiy exists
