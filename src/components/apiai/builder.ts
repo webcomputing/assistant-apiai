@@ -1,5 +1,5 @@
 import * as archiver from "archiver";
-import { GenericIntent, PlatformGenerator } from "assistant-source";
+import { GenericIntent, PlatformGenerator, PlatformRequestExtraction } from "assistant-source";
 import * as fs from "fs";
 import { inject, injectable } from "inversify";
 import { Component } from "inversify-components";
@@ -16,10 +16,12 @@ export class Builder implements PlatformGenerator.Extension {
     language: string,
     buildDir: string,
     intentConfigurations: PlatformGenerator.IntentConfiguration[],
-    parameterMapping: PlatformGenerator.EntityMapping
+    entityMapping: PlatformGenerator.EntityMapping,
+    customEntityMapping: PlatformGenerator.CustomEntityMapping
   ) {
     const currentBuildDir = buildDir + "/apiai";
     const intentDirectory = currentBuildDir + "/intents";
+    const entitiesDirectory = currentBuildDir + "/entities";
 
     console.log("=============     PROCESSING ON APIAI     ============");
     console.log("Intents: #" + intentConfigurations.length + ", language: " + language);
@@ -27,22 +29,36 @@ export class Builder implements PlatformGenerator.Extension {
     console.log("validating...");
     const convertedIntents = this.prepareConfiguration(intentConfigurations);
 
+    console.log("building entities (" + Object.keys(customEntityMapping).length + ")...");
+    const customEntities = this.buildCustomEntities(customEntityMapping);
+
     console.log("building intents (" + convertedIntents.length + ")...");
-    const intents = this.buildIntents(convertedIntents, parameterMapping);
+    const intents = this.buildIntents(convertedIntents, entityMapping, customEntityMapping);
     intents.push(this.buildDefaultIntent());
 
     console.log("creating build directory: " + currentBuildDir);
     fs.mkdirSync(currentBuildDir);
     fs.mkdirSync(intentDirectory);
+    fs.mkdirSync(entitiesDirectory);
 
     console.log("writing to files...");
 
+    // Write intents
     intents.forEach(intent => {
       fs.writeFileSync(intentDirectory + "/" + intent.intent.name + ".json", JSON.stringify(intent.intent, null, 2));
       if (intent.utterances && intent.utterances.length > 0) {
         fs.writeFileSync(intentDirectory + "/" + intent.intent.name + "_usersays_" + language + ".json", JSON.stringify(intent.utterances, null, 2));
       }
     });
+
+    // Write custom entities
+    customEntities.forEach(entity => {
+      if (typeof entity !== "undefined") {
+        fs.writeFileSync(entitiesDirectory + "/" + entity.entity.name + ".json", JSON.stringify(entity.entity, null, 2));
+        fs.writeFileSync(entitiesDirectory + "/" + entity.entity.name + "_entries_" + language + ".json", JSON.stringify(entity.entries, null, 2));
+      }
+    });
+
     this.writePackageJSON(currentBuildDir);
 
     console.log("writing bundled zip...");
@@ -50,16 +66,43 @@ export class Builder implements PlatformGenerator.Extension {
     const output = fs.createWriteStream(currentBuildDir + "/bundle.zip");
     zip.pipe(output);
     zip.directory(intentDirectory + "/", "intents/");
+    zip.directory(entitiesDirectory + "/", "entities/");
     zip.file(currentBuildDir + "/package.json", { name: "package.json" });
     zip.finalize();
     console.log("=============          FINISHED.          =============");
   }
 
   /**
-   * Returns Intent Schema for Amazon Alexa Config
+   * Return custom entities in Dialogflow schema syntax.
+   * @param entityMapping
+   */
+  public buildCustomEntities(customEntityMapping: PlatformGenerator.CustomEntityMapping) {
+    const config = this.component.configuration;
+
+    return Object.keys(customEntityMapping).map(type => {
+      if (typeof config.entities[type] === "undefined") {
+        const entity = {
+          id: uuid(),
+          name: type,
+          isOverridable: true,
+          isEnum: false,
+          automatedExpansion: false,
+        };
+        const entries = customEntityMapping[type];
+        return { entity, entries };
+      }
+    });
+  }
+
+  /**
+   * Returns Intent Schema for Dialogflow schema config
    * @param preparedIntentConfiguration: Result of prepareConfiguration()
    */
-  public buildIntents(preparedIntentConfiguration: PreparedIntentConfiguration[], parameterMapping: PlatformGenerator.EntityMapping) {
+  public buildIntents(
+    preparedIntentConfiguration: PreparedIntentConfiguration[],
+    entityMapping: PlatformGenerator.EntityMapping,
+    customEntityMapping: PlatformGenerator.CustomEntityMapping
+  ) {
     return preparedIntentConfiguration.map(config => {
       const intent = {
         id: uuid(),
@@ -70,7 +113,7 @@ export class Builder implements PlatformGenerator.Extension {
           {
             resetContexts: false,
             affectedContexts: [],
-            parameters: this.makeIntentParameters(config.entities, parameterMapping),
+            parameters: this.makeIntentParameters(config.entities, entityMapping, customEntityMapping),
             messages: [{ type: 0, lang: "en", speech: [] }],
             defaultResponsePlatforms: {},
             speech: [],
@@ -84,7 +127,7 @@ export class Builder implements PlatformGenerator.Extension {
         events: [],
       };
 
-      const utterances = config.utterances.map(utterance => this.buildUtterance(utterance, parameterMapping));
+      const utterances = config.utterances.map(utterance => this.buildUtterance(utterance, entityMapping, customEntityMapping));
 
       const result = { intent, utterances };
       return result;
@@ -138,43 +181,57 @@ export class Builder implements PlatformGenerator.Extension {
 
   /**
    * Returns single utterance json for intent schema
-   * @param utterance: Utterance string
-   * @param parameterMapping: Mapping of parameters
+   * @param utterance Utterange string
+   * @param entityMapping Mapping of entities
+   * @param customEntityMapping Mapping of custom entities
    */
-  public buildUtterance(utterance: string, parameterMapping: PlatformGenerator.EntityMapping) {
-    const utteranceData: Array<{}> = [];
-    // Separate simple text from entities
-    const utteranceSplits = utterance.split(/\{([A-Za-z0-9_äÄöÖüÜß]*)\}/g).filter((element, index) => index % 2 === 0);
-    // Extract entities from utterance
-    const utteranceParams = utterance.match(/\{([A-Za-z0-9_äÄöÖüÜß]*)\}/g);
-
-    // Create array of parameter objects
-    let utteranceParamObjects: Array<{ text: string; alias: string; userDefined: boolean; meta: string }> = [];
-    if (utteranceParams !== null) {
-      utteranceParamObjects = utteranceParams.map(parameter => {
-        const finalParameter = parameter.replace(/\{|\}/g, "");
-        return {
-          text: finalParameter,
-          alias: finalParameter,
-          userDefined: true,
-          meta: this.getParameterTypeFor(finalParameter, parameterMapping),
-        };
-      });
-    }
-
-    // Create resulting array in zip style
-    for (let i = 0; i < utteranceSplits.length; i++) {
-      if (utteranceSplits[i].length > 0) utteranceData.push({ text: utteranceSplits[i] });
-      if (typeof utteranceParamObjects[i] !== "undefined") utteranceData.push(utteranceParamObjects[i]);
-    }
-
-    return {
+  public buildUtterance(utterance: string, entityMapping: PlatformGenerator.EntityMapping, customEntityMapping: PlatformGenerator.CustomEntityMapping) {
+    const result = {
       id: uuid(),
-      data: utteranceData,
-      isTemplate: false,
       count: 0,
     };
+    const utteranceData: Array<{}> = [];
+    // Extract template entities from utterance
+    const utteranceTemplateEntities = utterance.match(/\{\{.+[\|]{1}(\w+)*\}\}/g);
+
+    if (utteranceTemplateEntities) {
+      // Separate simple text from entities and remove ending whitespaces
+      const utteranceSplits = utterance.split(/(\{\{.*\}\})/).filter(split => /\S/.test(split));
+      utteranceData.push(
+        ...utteranceSplits.map(split => {
+          // Check whether an entitiy exists
+          const entity = utteranceTemplateEntities.find(param => param === split);
+          if (typeof entity !== "undefined") {
+            // Extract value and name of entity
+            const [value, name] = entity.replace(/[{()}]/g, "").split("|", 2);
+            const paramType = this.getParameterTypeFor(name, entityMapping, customEntityMapping);
+            return {
+              text: value,
+              alias: name,
+              userDefined: true,
+              meta: `${paramType}`,
+            };
+          }
+          return {
+            text: split,
+            userDefined: false,
+          };
+        })
+      );
+      // Return utterance in example mode
+      return { ...result, data: utteranceData, isTemplate: false };
+    }
+
+    utteranceData.push({
+      text: utterance.replace(/\{\{(\w+)\}\}/g, (match: string, value: string) => {
+        return `${this.getParameterTypeFor(value, entityMapping, customEntityMapping)}:${value}`;
+      }),
+      userDefined: false,
+    });
+    // Return utterance in template mode
+    return { ...result, data: utteranceData, isTemplate: true };
   }
+
   /** Returns BuildIntentConfiguration[] but with all unspeakable intents filtered out. Checks all other platform intents for having utterances defined. */
   public prepareConfiguration(intentConfigurations: PlatformGenerator.IntentConfiguration[]): PreparedIntentConfiguration[] {
     // Leave out unspeakable Intent
@@ -203,7 +260,7 @@ export class Builder implements PlatformGenerator.Extension {
     });
 
     // Return result, but also add the "invokeGenericIntent", which acts as a the "default welcome intent"
-    return withoutUndefinedUtterances.concat([{ intent: "invokeGenericIntent", entities: [], utterances: [], entitySets: {} }]);
+    return withoutUndefinedUtterances.concat([{ intent: "invokeGenericIntent", entities: [], utterances: [] }]);
   }
 
   private getUnixTime() {
@@ -212,21 +269,39 @@ export class Builder implements PlatformGenerator.Extension {
 
   private makeIntentParameters(
     parameters: string[],
-    parameterMapping: PlatformGenerator.EntityMapping
-  ): Array<{ name: string; dataType: string; value: string; isList: boolean }> {
+    entityMapping: PlatformGenerator.EntityMapping,
+    customEntityMapping: PlatformGenerator.CustomEntityMapping
+  ) {
     return parameters.map(name => {
-      return { name, dataType: this.getParameterTypeFor(name, parameterMapping), value: "$" + name, isList: false };
+      const parameter = {
+        name,
+        id: uuid(),
+        required: false,
+        value: `$${name}`,
+        isList: false,
+      };
+      return { ...parameter, dataType: this.getParameterTypeFor(name, entityMapping, customEntityMapping) };
     });
   }
 
-  private getParameterTypeFor(parameterName: string, parameterMapping: PlatformGenerator.EntityMapping) {
+  private getParameterTypeFor(
+    parameterName: string,
+    entityMapping: PlatformGenerator.EntityMapping,
+    customEntityMapping: PlatformGenerator.CustomEntityMapping
+  ) {
     const config = this.component.configuration;
 
-    if (typeof config.entities === "undefined" || typeof config.entities[parameterMapping[parameterName]] === "undefined") {
-      throw Error("Missing apiai configured type for entity '" + parameterName + "' (as " + parameterMapping[parameterName] + ").");
+    // Return custom data type
+    if (typeof customEntityMapping[entityMapping[parameterName]] !== "undefined" && typeof config.entities[entityMapping[parameterName]] === "undefined") {
+      return `@${entityMapping[parameterName]}`;
     }
 
-    return config.entities[parameterMapping[parameterName]];
+    if (typeof config.entities === "undefined" || typeof config.entities[entityMapping[parameterName]] === "undefined") {
+      throw Error("Missing apiai configured type for entity '" + parameterName + "' (as " + entityMapping[parameterName] + ").");
+    }
+
+    // Return platform specific data type
+    return config.entities[entityMapping[parameterName]];
   }
 }
 

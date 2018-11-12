@@ -1,6 +1,7 @@
 0.4.0
 - add new ResponseHandler for compatibility with assistant-source 0.4.0
 - add interfaces for representing dialogflow api v2
+- annotate utterances with entities
 
 0.3.0
 - makes assistant-apiai compatible with assistant-source 0.3.0
