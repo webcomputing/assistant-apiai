@@ -1,10 +1,25 @@
-import { BasicHandler, injectionNames, MinimalRequestExtraction, RequestContext, ResponseHandlerExtensions } from "assistant-source";
+import {
+  applyMixin,
+  BasicHandler,
+  injectionNames,
+  MinimalRequestExtraction,
+  OptionalHandlerFeatures,
+  RequestContext,
+  ResponseHandlerExtensions,
+  SuggestionChipsMixin,
+} from "assistant-source";
 import { inject, injectable } from "inversify";
 import { ApiAiSpecificHandable, ApiAiSpecificTypes, DialogflowInterface } from "./public-interfaces";
 
 @injectable()
-export class ApiAiHandler<MergedAnswerTypes extends ApiAiSpecificTypes> extends BasicHandler<MergedAnswerTypes> implements ApiAiSpecificHandable<MergedAnswerTypes> {
+export class ApiAiHandler<MergedAnswerTypes extends ApiAiSpecificTypes> extends BasicHandler<MergedAnswerTypes>
+  implements ApiAiSpecificHandable<MergedAnswerTypes>, OptionalHandlerFeatures.SuggestionChips<MergedAnswerTypes> {
   public specificWhitelist: string[] = [];
+
+  /**
+   * ToDo: Remove from ApiAi with mixins and implemented Interface
+   */
+  public setSuggestionChips!: (suggestionChips: MergedAnswerTypes["suggestionChips"] | Promise<MergedAnswerTypes["suggestionChips"]>) => this;
 
   constructor(
     @inject(injectionNames.current.requestContext) requestContext: RequestContext,
@@ -26,3 +41,8 @@ export class ApiAiHandler<MergedAnswerTypes extends ApiAiSpecificTypes> extends 
     return response;
   }
 }
+
+/**
+ * Apply Mixins
+ */
+applyMixin(ApiAiHandler, [SuggestionChipsMixin]);
