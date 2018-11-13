@@ -17,7 +17,7 @@ export class ApiAiHandler<MergedAnswerTypes extends ApiAiSpecificTypes> extends 
   public specificWhitelist: string[] = [];
 
   /**
-   * ToDo: Remove from ApiAi with mixins and implemented Interface
+   * ToDo: Remove from ApiAi with mixins and implemented Interface. Also remove l. 41-42 below
    */
   public setSuggestionChips!: (suggestionChips: MergedAnswerTypes["suggestionChips"] | Promise<MergedAnswerTypes["suggestionChips"]>) => this;
 
@@ -31,12 +31,15 @@ export class ApiAiHandler<MergedAnswerTypes extends ApiAiSpecificTypes> extends 
     super(requestContext, extraction, killSession, responseHandlerExtensions);
   }
 
-  protected getBody(results: Partial<MergedAnswerTypes>): DialogflowInterface.WebhookResponse<any> {
+  protected getBody(results: Partial<MergedAnswerTypes>): DialogflowInterface.WebhookResponse<Partial<MergedAnswerTypes>> {
     const response: DialogflowInterface.WebhookResponse<any> = {};
 
     if (results.voiceMessage) {
       response.fulfillmentText = results.voiceMessage.text;
     }
+
+    /** Todo: also remove */
+    response.payload = results;
 
     return response;
   }
