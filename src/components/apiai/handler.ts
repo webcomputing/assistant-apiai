@@ -36,7 +36,7 @@ export class ApiAiHandler<MergedAnswerTypes extends ApiAiSpecificTypes> extends 
     super(requestContext, extraction, killSession, responseHandlerExtensions);
   }
 
-  protected getBody(results: Partial<MergedAnswerTypes>): DialogflowInterface.WebhookResponse<Partial<MergedAnswerTypes>> {
+  protected getBody(results: Partial<MergedAnswerTypes>): DialogflowInterface.WebhookResponse<any> {
     const response: DialogflowInterface.WebhookResponse<any> = {};
 
     if (results.voiceMessage) {
