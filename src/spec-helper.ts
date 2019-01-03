@@ -3,9 +3,9 @@ import { ApiAiHandler } from "./components/apiai/handler";
 import { ApiAiSpecificTypes, ExtractionInterface } from "./components/apiai/public-interfaces";
 
 export class ApiAiSpecHelper implements PlatformSpecHelper<ApiAiSpecificTypes, ApiAiHandler<ApiAiSpecificTypes>> {
-  constructor(public specSetup: SpecHelper) {}
+  constructor(public specHelper: SpecHelper) {}
 
-  public async pretendIntentCalled(intent: Intent, autoStart = true, additionalExtractions = {}, additionalContext = {}) {
+  public async pretendIntentCalled(intent: Intent, additionalExtractions = {}, additionalContext = {}) {
     const extraction: ExtractionInterface = {
       intent,
       platform: "apiai",
@@ -27,23 +27,18 @@ export class ApiAiSpecHelper implements PlatformSpecHelper<ApiAiSpecificTypes, A
       ...additionalContext,
     };
 
-    this.specSetup.createRequestScope(extraction, context);
+    this.specHelper.createRequestScope(extraction, context);
 
     // Bind handler as singleton
-    this.specSetup.setup.container.inversifyInstance.unbind("apiai:current-response-handler");
-    this.specSetup.setup.container.inversifyInstance
+    this.specHelper.assistantJs.container.inversifyInstance.unbind("apiai:current-response-handler");
+    this.specHelper.assistantJs.container.inversifyInstance
       .bind("apiai:current-response-handler")
       .to(ApiAiHandler)
       .inSingletonScope();
 
-    // auto run machine if wanted
-    if (autoStart) {
-      await this.specSetup.runMachine();
-    }
+    const proxyFactory = this.specHelper.assistantJs.container.inversifyInstance.get<HandlerProxyFactory>(injectionNames.handlerProxyFactory);
 
-    const proxyFactory = this.specSetup.setup.container.inversifyInstance.get<HandlerProxyFactory>(injectionNames.handlerProxyFactory);
-
-    const currentHandler = this.specSetup.setup.container.inversifyInstance.get<ApiAiHandler<ApiAiSpecificTypes>>("apiai:current-response-handler");
+    const currentHandler = this.specHelper.assistantJs.container.inversifyInstance.get<ApiAiHandler<ApiAiSpecificTypes>>("apiai:current-response-handler");
     const proxiedHandler = proxyFactory.createHandlerProxy(currentHandler);
 
     return proxiedHandler;
