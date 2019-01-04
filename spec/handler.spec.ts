@@ -13,6 +13,7 @@ describe("Handler", function() {
   beforeEach(async function(this: CurrentThisContext) {
     this.apiAiSpecHelper = new ApiAiSpecHelper(this.specHelper);
     this.handler = await this.apiAiSpecHelper.pretendIntentCalled("test");
+    await this.specHelper.runMachine("MainState");
     this.results = this.specHelper.getResponseResults();
   });
 
