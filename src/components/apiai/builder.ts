@@ -80,7 +80,7 @@ export class Builder implements PlatformGenerator.Extension {
     const config = this.component.configuration;
 
     return Object.keys(customEntityMapping).map(type => {
-      if (typeof config.entities[type] === "undefined") {
+      if (typeof config.entities[type] !== "undefined") {
         const entity = {
           id: uuid(),
           name: type,
