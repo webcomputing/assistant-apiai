@@ -1,6 +1,6 @@
 import { ComponentSpecificLoggerFactory, GenericIntent, injectionNames, intent, Logger, RequestExtractor } from "assistant-source";
 import { inject, injectable } from "inversify";
-import { Component } from "inversify-components";
+import { Component, getMetaInjectionName } from "inversify-components";
 import { apiaiInjectionNames } from "./injection-names";
 import { apiaiToGenericIntent } from "./intent-dict";
 import { COMPONENT_NAME, Configuration } from "./private-interfaces";
@@ -13,7 +13,7 @@ export class Extractor implements RequestExtractor {
   private logger: Logger;
 
   constructor(
-    @inject(apiaiInjectionNames.component) componentMeta: Component<Configuration.Runtime>,
+    @inject(getMetaInjectionName(COMPONENT_NAME)) componentMeta: Component<Configuration.Runtime>,
     @inject(injectionNames.componentSpecificLoggerFactory) logFactory: ComponentSpecificLoggerFactory
   ) {
     this.component = componentMeta;
