@@ -4,14 +4,14 @@ import * as fs from "fs";
 import { inject, injectable } from "inversify";
 import { Component } from "inversify-components";
 import { v4 as uuid } from "uuid";
-import { componentInjectionNames } from "./injection-names";
+import { apiaiInjectionNames } from "./injection-names";
 import { genericIntentToApiai } from "./intent-dict";
 import { Configuration } from "./private-interfaces";
 
 // tslint:disable:no-console
 @injectable()
 export class Builder implements PlatformGenerator.Extension {
-  constructor(@inject(componentInjectionNames.apiaiComponent) private component: Component<Configuration.Runtime>) {}
+  constructor(@inject(apiaiInjectionNames.component) private component: Component<Configuration.Runtime>) {}
 
   public execute(
     language: string,

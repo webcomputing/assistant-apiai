@@ -1,6 +1,6 @@
 import { HandlerProxyFactory, injectionNames, intent as Intent, PlatformSpecHelper, RequestContext, SpecHelper } from "assistant-source";
 import { ApiAiHandler } from "./components/apiai/handler";
-import { componentInjectionNames } from "./components/apiai/injection-names";
+import { apiaiInjectionNames } from "./components/apiai/injection-names";
 import { ApiAiSpecificTypes, ExtractionInterface } from "./components/apiai/public-interfaces";
 
 export class ApiAiSpecHelper implements PlatformSpecHelper<ApiAiSpecificTypes, ApiAiHandler<ApiAiSpecificTypes>> {
@@ -31,16 +31,16 @@ export class ApiAiSpecHelper implements PlatformSpecHelper<ApiAiSpecificTypes, A
     this.specHelper.createRequestScope(extraction, context);
 
     // Bind handler as singleton
-    this.specHelper.assistantJs.container.inversifyInstance.unbind(componentInjectionNames.apiaiResponseHandler);
+    this.specHelper.assistantJs.container.inversifyInstance.unbind(apiaiInjectionNames.current.responseHandler);
     this.specHelper.assistantJs.container.inversifyInstance
-      .bind(componentInjectionNames.apiaiResponseHandler)
+      .bind(apiaiInjectionNames.current.responseHandler)
       .to(ApiAiHandler)
       .inSingletonScope();
 
     const proxyFactory = this.specHelper.assistantJs.container.inversifyInstance.get<HandlerProxyFactory>(injectionNames.handlerProxyFactory);
 
     const currentHandler = this.specHelper.assistantJs.container.inversifyInstance.get<ApiAiHandler<ApiAiSpecificTypes>>(
-      componentInjectionNames.apiaiResponseHandler
+      apiaiInjectionNames.current.responseHandler
     );
     const proxiedHandler = proxyFactory.createHandlerProxy(currentHandler);
 

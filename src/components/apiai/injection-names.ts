@@ -1,11 +1,16 @@
 /** Names of injectionable services, leads to fewer typing errors for most important injections */
-export const componentInjectionNames = {
+export const apiaiInjectionNames = {
   /**
    * Inject an instance of @type {Component<Configuration.Runtime>}
    */
-  apiaiComponent: "meta:component//apiai",
+  component: "meta:component//apiai",
   /**
-   * Inject an instance of @type {ApiAiHandler}
+   * Namespace for services which are only available in the request scope.
    */
-  apiaiResponseHandler: "apiai:current-response-handler",
+  current: {
+    /**
+     * Inject an instance of @type {ApiAiHandler}
+     */
+    responseHandler: "apiai:current-response-handler",
+  },
 };
