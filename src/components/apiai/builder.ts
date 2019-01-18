@@ -2,15 +2,16 @@ import * as archiver from "archiver";
 import { GenericIntent, PlatformGenerator, PlatformRequestExtraction } from "assistant-source";
 import * as fs from "fs";
 import { inject, injectable } from "inversify";
-import { Component } from "inversify-components";
+import { Component, getMetaInjectionName } from "inversify-components";
 import { v4 as uuid } from "uuid";
+import { apiaiInjectionNames } from "./injection-names";
 import { genericIntentToApiai } from "./intent-dict";
-import { Configuration } from "./private-interfaces";
+import { COMPONENT_NAME, Configuration } from "./private-interfaces";
 
 // tslint:disable:no-console
 @injectable()
 export class Builder implements PlatformGenerator.Extension {
-  constructor(@inject("meta:component//apiai") private component: Component<Configuration.Runtime>) {}
+  constructor(@inject(getMetaInjectionName(COMPONENT_NAME)) private component: Component<Configuration.Runtime>) {}
 
   public execute(
     language: string,
