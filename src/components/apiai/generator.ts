@@ -1,5 +1,5 @@
 import * as archiver from "archiver";
-import { GenericIntent, PlatformGenerator, PlatformRequestExtraction } from "assistant-source";
+import { GenericIntent, intent, PlatformGenerator, PlatformRequestExtraction } from "assistant-source";
 import * as fs from "fs";
 import { inject, injectable } from "inversify";
 import { Component, getMetaInjectionName } from "inversify-components";
@@ -10,8 +10,12 @@ import { COMPONENT_NAME, Configuration } from "./private-interfaces";
 
 // tslint:disable:no-console
 @injectable()
-export class Builder implements PlatformGenerator.Extension {
-  constructor(@inject(getMetaInjectionName(COMPONENT_NAME)) private component: Component<Configuration.Runtime>) {}
+export class Generator implements PlatformGenerator.Extension {
+  private currentBuildDir: string = "";
+  private intentDirectory: string = "";
+  private entitiesDirectory: string = "";
+  private language: string = "";
+  constructor(@inject("meta:component//apiai") private component: Component<Configuration.Runtime>) {}
 
   public execute(
     language: string,
@@ -20,9 +24,10 @@ export class Builder implements PlatformGenerator.Extension {
     entityMapping: PlatformGenerator.EntityMapping,
     customEntityMapping: PlatformGenerator.CustomEntityMapping
   ) {
-    const currentBuildDir = buildDir + "/apiai";
-    const intentDirectory = currentBuildDir + "/intents";
-    const entitiesDirectory = currentBuildDir + "/entities";
+    this.language = language;
+    this.currentBuildDir = buildDir + "/apiai";
+    this.intentDirectory = this.currentBuildDir + "/intents";
+    this.entitiesDirectory = this.currentBuildDir + "/entities";
 
     console.log("=============     PROCESSING ON APIAI     ============");
     console.log("Intents: #" + intentConfigurations.length + ", language: " + language);
@@ -37,39 +42,23 @@ export class Builder implements PlatformGenerator.Extension {
     const intents = this.buildIntents(convertedIntents, entityMapping, customEntityMapping);
     intents.push(this.buildDefaultIntent());
 
-    console.log("creating build directory: " + currentBuildDir);
-    fs.mkdirSync(currentBuildDir);
-    fs.mkdirSync(intentDirectory);
-    fs.mkdirSync(entitiesDirectory);
+    this.createBuildDirectory();
 
     console.log("writing to files...");
 
-    // Write intents
-    intents.forEach(intent => {
-      fs.writeFileSync(intentDirectory + "/" + intent.intent.name + ".json", JSON.stringify(intent.intent, null, 2));
-      if (intent.utterances && intent.utterances.length > 0) {
-        fs.writeFileSync(intentDirectory + "/" + intent.intent.name + "_usersays_" + language + ".json", JSON.stringify(intent.utterances, null, 2));
-      }
-    });
+    // Write intents and utterances
+    intents.forEach(intent => this.writeIntentAndUtterancesFiles(intent));
 
     // Write custom entities
-    customEntities.forEach(entity => {
-      if (typeof entity !== "undefined") {
-        fs.writeFileSync(entitiesDirectory + "/" + entity.entity.name + ".json", JSON.stringify(entity.entity, null, 2));
-        fs.writeFileSync(entitiesDirectory + "/" + entity.entity.name + "_entries_" + language + ".json", JSON.stringify(entity.entries, null, 2));
-      }
-    });
+    customEntities.forEach(entity => this.writeCustomEntitiesFiles(entity));
 
-    this.writePackageJSON(currentBuildDir);
+    this.writePackageJSON(this.currentBuildDir);
 
     console.log("writing bundled zip...");
-    const zip = archiver("zip");
-    const output = fs.createWriteStream(currentBuildDir + "/bundle.zip");
-    zip.pipe(output);
-    zip.directory(intentDirectory + "/", "intents/");
-    zip.directory(entitiesDirectory + "/", "entities/");
-    zip.file(currentBuildDir + "/package.json", { name: "package.json" });
-    zip.finalize();
+
+    /** Move generated configuration files to a zip file */
+    this.createBundleFile();
+
     console.log("=============          FINISHED.          =============");
   }
 
@@ -262,6 +251,54 @@ export class Builder implements PlatformGenerator.Extension {
 
     // Return result, but also add the "invokeGenericIntent", which acts as a the "default welcome intent"
     return withoutUndefinedUtterances.concat([{ intent: "invokeGenericIntent", entities: [], utterances: [] }]);
+  }
+
+  /**
+   * Create all needed build directories
+   */
+  private createBuildDirectory() {
+    console.log("creating build directory: " + this.currentBuildDir);
+    fs.mkdirSync(this.currentBuildDir);
+    fs.mkdirSync(this.intentDirectory);
+    fs.mkdirSync(this.entitiesDirectory);
+  }
+
+  /**
+   * Create a bundle.zip file and insert all configuration files
+   */
+  private createBundleFile() {
+    const zip = archiver("zip");
+    const output = fs.createWriteStream(this.currentBuildDir + "/bundle.zip");
+    zip.pipe(output);
+    zip.directory(this.intentDirectory + "/", "intents/");
+    zip.directory(this.entitiesDirectory + "/", "entities/");
+    zip.file(this.currentBuildDir + "/package.json", { name: "package.json" });
+    zip.finalize();
+  }
+
+  /**
+   * Writes generated intent schema to single definition file
+   * @param intent
+   */
+  private writeIntentAndUtterancesFiles(intent: ReturnType<Generator["buildDefaultIntent"]>) {
+    fs.writeFileSync(this.intentDirectory + "/" + intent.intent.name + ".json", JSON.stringify(intent.intent, null, 2));
+    if (intent.utterances && intent.utterances.length > 0) {
+      fs.writeFileSync(this.intentDirectory + "/" + intent.intent.name + "_usersays_" + this.language + ".json", JSON.stringify(intent.utterances, null, 2));
+    }
+  }
+
+  /**
+   * Writes generated custom entities to entity definition and language specific synonym file
+   * @param customEntity
+   */
+  private writeCustomEntitiesFiles(customEntity) {
+    if (typeof customEntity !== "undefined") {
+      fs.writeFileSync(this.entitiesDirectory + "/" + customEntity.entity.name + ".json", JSON.stringify(customEntity.entity, null, 2));
+      fs.writeFileSync(
+        this.entitiesDirectory + "/" + customEntity.entity.name + "_entries_" + this.language + ".json",
+        JSON.stringify(customEntity.entries, null, 2)
+      );
+    }
   }
 
   private getUnixTime() {

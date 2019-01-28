@@ -1,7 +1,7 @@
 import { PlatformGenerator, RequestExtractor } from "assistant-source";
 import { ComponentDescriptor } from "inversify-components";
-import { Builder } from "./builder";
 import { Extractor } from "./extractor";
+import { Generator } from "./generator";
 import { ApiAiHandler } from "./handler";
 import { COMPONENT_NAME, Configuration } from "./private-interfaces";
 
@@ -22,7 +22,7 @@ export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
     root: (bindService, lookupService) => {
       bindService.bindExtension<RequestExtractor>(lookupService.lookup("core:unifier").getInterface("requestProcessor")).to(Extractor);
 
-      bindService.bindExtension<PlatformGenerator.Extension>(lookupService.lookup("core:unifier").getInterface("platformGenerator")).to(Builder);
+      bindService.bindExtension<PlatformGenerator.Extension>(lookupService.lookup("core:unifier").getInterface("platformGenerator")).to(Generator);
     },
     request: bindService => {
       bindService.bindGlobalService("current-response-handler").to(ApiAiHandler);
