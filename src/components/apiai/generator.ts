@@ -2,10 +2,11 @@ import * as archiver from "archiver";
 import { GenericIntent, intent, PlatformGenerator, PlatformRequestExtraction } from "assistant-source";
 import * as fs from "fs";
 import { inject, injectable } from "inversify";
-import { Component } from "inversify-components";
+import { Component, getMetaInjectionName } from "inversify-components";
 import { v4 as uuid } from "uuid";
+import { apiaiInjectionNames } from "./injection-names";
 import { genericIntentToApiai } from "./intent-dict";
-import { Configuration } from "./private-interfaces";
+import { COMPONENT_NAME, Configuration } from "./private-interfaces";
 
 // tslint:disable:no-console
 @injectable()
