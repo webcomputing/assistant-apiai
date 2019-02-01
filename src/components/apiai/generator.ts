@@ -114,7 +114,7 @@ export class Generator implements PlatformGenerator.Extension {
         webhookForSlotFilling: false,
         lastUpdate: this.getUnixTime(),
         fallbackIntent: false,
-        events: this.prepareIntentEvents(config.intent),
+        events: this.prepareEventsFor(config.intent),
       };
 
       const utterances = config.utterances.map(utterance => this.buildUtterance(utterance, entityMapping, customEntityMapping));
@@ -252,7 +252,11 @@ export class Generator implements PlatformGenerator.Extension {
     return withoutUndefinedUtterances.concat([{ intent: "invokeGenericIntent", entities: [], utterances: [] }]);
   }
 
-  private prepareIntentEvents(intent: string) {
+  /**
+   * Search for events in the DialogflowEventStore and transfer them to the Dialogflow specific syntax.
+   * @param intent Search for the intent name
+   */
+  private prepareEventsFor(intent: string) {
     const events = DialogflowEventStore.getEventsFor(intent);
     if (events && events.length > 0) return events.map(event => ({ name: event }));
     return [];
