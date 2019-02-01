@@ -3,6 +3,7 @@ import { GenericIntent, intent, PlatformGenerator } from "assistant-source";
 import { Configuration } from "assistant-source/dts/components/unifier/private-interfaces";
 import * as fs from "fs";
 import { Component, getMetaInjectionName } from "inversify-components";
+import DialogflowEventStore from "../../../../src/components/apiai/dialogflow-event-store";
 import { Generator } from "../../../../src/components/apiai/generator";
 import { COMPONENT_NAME } from "../../../../src/components/apiai/private-interfaces";
 import { ThisContext } from "../../../support/this-context";
@@ -323,6 +324,23 @@ describe("Generator", function() {
             `${this.params.buildDir}/apiai/intents/invokeGenericIntent_usersays_${this.params.language}.json`,
             jasmine.any(Object)
           );
+        });
+      });
+
+      describe("with annotated events", function() {
+        beforeEach(async function(this: CurrentThisContext) {
+          /** Adds the helloWorld intent with the WELCOME event to the DialogflowEventStore */
+          DialogflowEventStore.addEvents("helloWorld", ["WELCOME"]);
+
+          await this.execGenerator();
+        });
+
+        it("maps intent events to valid syntax", async function(this: CurrentThisContext) {
+          expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.any(String), jasmine.objectContaining({ events: [{ name: jasmine.any(String) }] }));
+        });
+
+        it("includes annotated intent events definitions", async function(this: CurrentThisContext) {
+          expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching("helloWorld"), jasmine.objectContaining({ events: [{ name: "WELCOME" }] }));
         });
       });
 
