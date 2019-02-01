@@ -99,7 +99,7 @@ describe("DialogflowEventStore", function() {
         new DialogflowEventStore();
       });
 
-      it("returns in instance of the DialogflowEventStore", async function(this: CurrentThisContext) {
+      it("returns an instance of the DialogflowEventStore", async function(this: CurrentThisContext) {
         expect(DialogflowEventStore.instance instanceof DialogflowEventStore).toBeTruthy();
       });
     });

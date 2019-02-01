@@ -75,11 +75,11 @@ describe("@dialogflowEvents", function() {
         expect(Object.keys(this.getAllEvents()).length).toBe(2);
       });
 
-      it("writes mainIntent with welcome event to DialogflowEventStore", async function(this: CurrentThisContext) {
+      it("writes mainIntent with welcome event to the DialogflowEventStore", async function(this: CurrentThisContext) {
         expect(this.getAllEvents().mainIntent).toEqual(["welcome"]);
       });
 
-      it("writes welcomeIntent with done event to DialogflowEventStore", async function(this: CurrentThisContext) {
+      it("writes welcomeIntent with done event to the DialogflowEventStore", async function(this: CurrentThisContext) {
         expect(this.getAllEvents().welcomeIntent).toEqual(["done"]);
       });
     });
@@ -100,11 +100,11 @@ describe("@dialogflowEvents", function() {
         expect(Object.keys(this.getAllEvents()).length).toBe(2);
       });
 
-      it("writes mainIntent with welcome and letsGo event to DialogflowEventStore", async function(this: CurrentThisContext) {
+      it("writes mainIntent with welcome and letsGo event to the DialogflowEventStore", async function(this: CurrentThisContext) {
         expect(this.getAllEvents().mainIntent).toEqual(["welcome", "letsGo"]);
       });
 
-      it("writes welcomeIntent with done and introduction event to DialogflowEventStore", async function(this: CurrentThisContext) {
+      it("writes welcomeIntent with done and introduction event to the DialogflowEventStore", async function(this: CurrentThisContext) {
         expect(this.getAllEvents().welcomeIntent).toEqual(["done", "introduction"]);
       });
     });

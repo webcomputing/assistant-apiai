@@ -340,7 +340,7 @@ describe("Generator", function() {
           DialogflowEventStore.clear();
         });
 
-        it("maps intent events to valid syntax", async function(this: CurrentThisContext) {
+        it("transfers intent events to valid dialogflow specific syntax", async function(this: CurrentThisContext) {
           expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.any(String), jasmine.objectContaining({ events: [{ name: jasmine.any(String) }] }));
         });
 
