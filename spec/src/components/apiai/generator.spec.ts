@@ -335,6 +335,11 @@ describe("Generator", function() {
           await this.execGenerator();
         });
 
+        afterEach(async function(this: CurrentThisContext) {
+          /** Reset the DialogflowEventStore */
+          DialogflowEventStore.clear();
+        });
+
         it("maps intent events to valid syntax", async function(this: CurrentThisContext) {
           expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.any(String), jasmine.objectContaining({ events: [{ name: jasmine.any(String) }] }));
         });
