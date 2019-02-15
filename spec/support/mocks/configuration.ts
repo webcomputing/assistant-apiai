@@ -12,6 +12,8 @@ export const configuration: ApiaiConfiguration = {
   },
 
   route: validRequestContext.path,
+
+  googleApplicationCredentials: "tmp",
 };
 
 export const serviceConfiguration: ServicesConfiguration = {
