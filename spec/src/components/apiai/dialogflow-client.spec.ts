@@ -8,16 +8,27 @@ import { COMPONENT_NAME, Configuration } from "../../../../src/components/apiai/
 import { ThisContext } from "../../../support/this-context";
 
 interface CurrentThisContext extends ThisContext {
+  /** Instance of the current component metadata */
   componentMeta: Component<Configuration.Runtime>;
+  /** Instance of the current DialogflowClient */
   dialogflowClient: DialogflowClient;
+  /** Spy instance from the auth.request method  */
   requestSpy: jasmine.Spy;
+  /** Spy instance from the toString method of the Buffer object */
   bufferToStringSpy: jasmine.Spy;
+  /** Instance of the current component logger */
   logger: Logger;
+  /** Response date witch will be returned by the auth.request spy */
   responseData: { data?: { response?: { agentContent?: string } } };
+  /** Current build directory path  */
   buildDir: string;
+  /** Returned value from the existsSync method  */
   existsSyncReturn: boolean;
+  /** Returned value from the readFileSync method */
   readFileSyncReturn: any;
+  /** Spec spy instances. */
   spys: any;
+  /** Current instance of the ApiAiDeployment */
   ApiAiDeployment: ApiAiDeployment;
 }
 
@@ -27,6 +38,7 @@ const { from } = Buffer;
 
 describe("DialogflowClient", function() {
   afterEach(async function(this: CurrentThisContext) {
+    /** Reset mocked function */
     (auth as any).request = request;
     (auth as any).getProjectId = getProjectId;
     (auth as any).getClient = getClient;
@@ -44,28 +56,37 @@ describe("DialogflowClient", function() {
 
     /** Create spy Objects and mock values */
     this.spys = {};
+
     this.buildDir = "tmp";
+
     this.responseData = { data: { response: { agentContent: "data" } } };
+
     this.requestSpy = jasmine.createSpy("request").and.callFake((...any) => {
       return this.responseData;
     });
+
     (auth as any).getProjectId = jasmine.createSpy("getProjectId").and.callFake(() => "demo");
+
     (auth as any).getClient = jasmine.createSpy("getClient").and.callFake(() => {
-      return {
-        request: this.requestSpy,
-      };
+      return { request: this.requestSpy };
     });
+
     (fs as any).writeFileSync = jasmine.createSpy("writeFileSync");
+
     (fs as any).mkdirSync = jasmine.createSpy("mkdirSync").and.callThrough();
+
     this.existsSyncReturn = true;
     (fs as any).existsSync = jasmine.createSpy("existsSync").and.callFake((...args) => this.existsSyncReturn);
+
     this.readFileSyncReturn = "readFileSyncReturn";
     (fs as any).readFileSync = jasmine.createSpy("readFileSync").and.callFake((...args) => this.readFileSyncReturn);
 
     this.bufferToStringSpy = jasmine.createSpy("bufferToStringSpy").and.returnValue("data");
+
     (Buffer as any).from = jasmine.createSpy("from").and.callFake(() => {
       return { toString: this.bufferToStringSpy };
     });
+
     /** Initialize DialogflowClient */
     this.dialogflowClient = new DialogflowClient(this.componentMeta, this.logger);
   });
