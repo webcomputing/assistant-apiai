@@ -1,10 +1,10 @@
-import { RequestExtractor, RequestContext, intent, GenericIntent, Logger, injectionNames, ComponentSpecificLoggerFactory } from "assistant-source";
-import { injectable, inject } from "inversify";
-import { Component } from "inversify-components";
-
-import { Configuration, COMPONENT_NAME } from "./private-interfaces";
-import { Extraction } from "./public-interfaces";
+import { ComponentSpecificLoggerFactory, GenericIntent, injectionNames, intent, Logger, RequestExtractor } from "assistant-source";
+import { inject, injectable } from "inversify";
+import { Component, getMetaInjectionName } from "inversify-components";
+import { apiaiInjectionNames } from "./injection-names";
 import { apiaiToGenericIntent } from "./intent-dict";
+import { COMPONENT_NAME, Configuration } from "./private-interfaces";
+import { DialogflowRequestContext, ExtractionInterface } from "./public-interfaces";
 
 @injectable()
 export class Extractor implements RequestExtractor {
@@ -13,7 +13,7 @@ export class Extractor implements RequestExtractor {
   private logger: Logger;
 
   constructor(
-    @inject("meta:component//apiai") componentMeta: Component<Configuration.Runtime>,
+    @inject(getMetaInjectionName(COMPONENT_NAME)) componentMeta: Component<Configuration.Runtime>,
     @inject(injectionNames.componentSpecificLoggerFactory) logFactory: ComponentSpecificLoggerFactory
   ) {
     this.component = componentMeta;
@@ -21,44 +21,49 @@ export class Extractor implements RequestExtractor {
     this.logger = logFactory(COMPONENT_NAME, "root");
   }
 
-  async fits(context: RequestContext): Promise<boolean> {
+  public async fits(context: DialogflowRequestContext): Promise<boolean> {
     this.logger.debug({ requestId: context.id }, "Checking request for dialogflow...");
 
     // 1) Check if request format is o.k.
-    if (!(
-      context.path === this.configuration.route && 
-      typeof context.body !== "undefined" && 
-      typeof context.body.sessionId !== "undefined" && 
-      typeof context.body.lang !== "undefined" && 
-      typeof context.body.result !== "undefined" &&
-      typeof context.body.result.resolvedQuery !== "undefined"  
-    )) {
+    if (
+      !(
+        context.path === this.configuration.route &&
+        typeof context.body !== "undefined" &&
+        typeof context.body.session !== "undefined" &&
+        typeof context.body.queryResult !== "undefined" &&
+        typeof context.body.queryResult.queryText !== "undefined"
+      )
+    ) {
       return false;
     }
 
     // 2) Check if secret header fields are o.k.
     if (typeof this.configuration.authenticationHeaders === "undefined" || Object.keys(this.configuration.authenticationHeaders).length < 1) {
-      throw new Error("You did not specify any authenticationHeaders in your assistant-apiai configuration. Since version 0.2, you have to specify "+
-        "authentication headers. Check out the assistant-apiai README or the assistant-apiai configuration interface for more information.");
+      throw new Error(
+        "You did not specify any authenticationHeaders in your assistant-apiai configuration. Since version 0.2, you have to specify " +
+          "authentication headers. Check out the assistant-apiai README or the assistant-apiai configuration interface for more information."
+      );
     } else {
       // For each configured header field, check if the given value of this header is equal the configured value
-      const headersAreValid = Object.keys(this.configuration.authenticationHeaders).filter(headerKey => 
-        context.headers[headerKey] !== this.configuration.authenticationHeaders[headerKey] &&
-        context.headers[headerKey.toLowerCase()] !== this.configuration.authenticationHeaders[headerKey] &&
-        context.headers[headerKey.toUpperCase()] !== this.configuration.authenticationHeaders[headerKey]
-      ).length === 0;
+      const headersAreValid =
+        Object.keys(this.configuration.authenticationHeaders).filter(
+          headerKey =>
+            context.headers[headerKey] !== this.configuration.authenticationHeaders[headerKey] &&
+            context.headers[headerKey.toLowerCase()] !== this.configuration.authenticationHeaders[headerKey] &&
+            context.headers[headerKey.toUpperCase()] !== this.configuration.authenticationHeaders[headerKey]
+        ).length === 0;
 
       if (headersAreValid) {
         this.logger.debug({ requestId: context.id }, "Request matched for dialogflow.");
         return true;
-      } else {
-        this.logger.warn({ requestId: context.id }, "Given headers did not match configured authenticationHeaders. Aborting.");
-        return false;
       }
+
+      this.logger.warn({ requestId: context.id }, "Given headers did not match configured authenticationHeaders. Aborting.");
+      return false;
     }
   }
 
-  async extract(context: RequestContext): Promise<Extraction> {
+  public async extract(context: DialogflowRequestContext): Promise<ExtractionInterface> {
     this.logger.info({ requestId: context.id }, "Extracting dialogflow request.");
 
     return {
@@ -67,34 +72,40 @@ export class Extractor implements RequestExtractor {
       intent: this.getIntent(context),
       entities: this.getEntities(context),
       language: this.getLanguage(context),
-      spokenText: this.getSpokenText(context)
+      spokenText: this.getSpokenText(context),
+      additionalParameters: this.getAdditionalParameters(context),
     };
   }
 
-  protected getSessionID(context: RequestContext) {
-    return "apiai-" + context.body.sessionId;
+  protected getSessionID(context: DialogflowRequestContext) {
+    return context.body.session;
   }
 
-  protected getIntent(context: RequestContext): intent {
-    if (typeof(context.body.result) === "undefined" || typeof(context.body.result.metadata) === "undefined" 
-      || typeof(context.body.result.metadata.intentName) !== "string") {
-        return GenericIntent.Unhandled;
+  protected getIntent(context: DialogflowRequestContext): intent {
+    if (
+      typeof context.body.queryResult === "undefined" ||
+      typeof context.body.queryResult.intent === "undefined" ||
+      typeof context.body.queryResult.intent.displayName !== "string" ||
+      context.body.queryResult.intent.isFallback === true
+    ) {
+      return GenericIntent.Unhandled;
     }
 
-    let genericIntent = this.getGenericIntent(context);
+    const genericIntent = this.getGenericIntent(context);
     if (genericIntent !== null) return genericIntent;
 
-    return context.body.result.metadata.intentName;
+    return context.body.queryResult.intent.displayName;
   }
 
-  protected getEntities(context: RequestContext) {
-    let request = context.body;
-    if (typeof(request.result) !== "undefined") {
-      if (typeof(request.result.parameters) !== "undefined") {
-        let result = {};
-        Object.keys(request.result.parameters).forEach(slotName => {
-          if (typeof(request.result.parameters[slotName]) !== "undefined" && request.result.parameters[slotName] !== "")
-            result[slotName] = request.result.parameters[slotName];
+  protected getEntities(context: DialogflowRequestContext) {
+    const request = context.body;
+    if (typeof request.queryResult !== "undefined") {
+      if (typeof request.queryResult.parameters !== "undefined") {
+        const result = {};
+        Object.keys(request.queryResult.parameters).forEach(slotName => {
+          if (typeof request.queryResult.parameters[slotName] !== "undefined" && request.queryResult.parameters[slotName] !== "") {
+            result[slotName] = request.queryResult.parameters[slotName];
+          }
         });
         return result;
       }
@@ -103,20 +114,24 @@ export class Extractor implements RequestExtractor {
     return {};
   }
 
-  protected getLanguage(context: RequestContext): string {
-    return context.body.lang;
+  protected getLanguage(context: DialogflowRequestContext): string {
+    return context.body.queryResult.languageCode;
   }
 
   /* Returns GenericIntent if request is a GenericIntent, or null, if not */
-  protected getGenericIntent(context: RequestContext): GenericIntent | null {
-    return Extractor.makeIntentStringToGenericIntent(context.body.result.metadata.intentName);
+  protected getGenericIntent(context: DialogflowRequestContext): GenericIntent | null {
+    return Extractor.makeIntentStringToGenericIntent(context.body.queryResult.intent.displayName);
   }
 
-  protected getSpokenText(context: RequestContext): string {
-    return context.body.result.resolvedQuery;
+  protected getSpokenText(context: DialogflowRequestContext): string {
+    return context.body.queryResult.queryText;
   }
 
-  static makeIntentStringToGenericIntent(intent: string): GenericIntent | null {
-    return apiaiToGenericIntent.hasOwnProperty(intent) ? apiaiToGenericIntent[intent] : null;
+  protected getAdditionalParameters(context: DialogflowRequestContext): { [args: string]: any } {
+    return (context.body && context.body.originalDetectIntentRequest && context.body.originalDetectIntentRequest.payload) || {};
+  }
+
+  public static makeIntentStringToGenericIntent(intentName: string): GenericIntent | null {
+    return apiaiToGenericIntent.hasOwnProperty(intentName) ? apiaiToGenericIntent[intentName] : null;
   }
 }

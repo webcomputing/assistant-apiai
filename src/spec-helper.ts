@@ -1,45 +1,49 @@
-import { Component } from "inversify-components";
-import { SpecSetup, PlatformSpecHelper, intent, RequestContext, } from "assistant-source";
+import { HandlerProxyFactory, injectionNames, intent as Intent, PlatformSpecHelper, RequestContext, SpecHelper } from "assistant-source";
+import { ApiAiHandler } from "./components/apiai/handler";
+import { apiaiInjectionNames } from "./components/apiai/injection-names";
+import { ApiAiSpecificTypes, ExtractionInterface } from "./components/apiai/public-interfaces";
 
-import { Extraction, HandlerInterface } from "./components/apiai/public-interfaces";
-import { ApiAiHandle } from "./components/apiai/handle";
+export class ApiAiSpecHelper implements PlatformSpecHelper<ApiAiSpecificTypes, ApiAiHandler<ApiAiSpecificTypes>> {
+  constructor(public specHelper: SpecHelper) {}
 
-export class SpecHelper implements PlatformSpecHelper {
-  specSetup: SpecSetup
-
-  constructor(assistantSpecSetup: SpecSetup) {
-    this.specSetup = assistantSpecSetup;
-  }
-
-  async pretendIntentCalled(intent: intent, autoStart = true, additionalExtractions = {}, additionalContext = {}): Promise<HandlerInterface> {
-    let extraction: Extraction = Object.assign({
+  public async pretendIntentCalled(intent: Intent, additionalExtractions = {}, additionalContext = {}) {
+    const extraction: ExtractionInterface = {
+      intent,
       platform: "apiai",
-      intent: intent,
       sessionID: "apiai-mock-session-id",
       language: "en",
-      spokenText: "this is the spoken text"
-    }, additionalExtractions);
+      spokenText: "this is the spoken text",
+      additionalParameters: {},
+      ...additionalExtractions,
+    };
 
-    let context: RequestContext = Object.assign({
-      id: 'my-request-id',
-      method: 'POST',
-      path: '/apiai',
+    const context: RequestContext = {
+      id: "my-request-id",
+      method: "POST",
+      path: "/apiai",
       body: {},
       headers: {},
-      responseCallback: () => {}
-    }, additionalContext);
+      // tslint:disable-next-line:no-empty
+      responseCallback: () => {},
+      ...additionalContext,
+    };
 
-    this.specSetup.createRequestScope(extraction, context);
+    this.specHelper.createRequestScope(extraction, context);
 
     // Bind handler as singleton
-    this.specSetup.setup.container.inversifyInstance.unbind("apiai:current-response-handler");
-    this.specSetup.setup.container.inversifyInstance.bind("apiai:current-response-handler").to(ApiAiHandle).inSingletonScope();
-    
-    // auto run machine if wanted
-    if (autoStart) {
-      await this.specSetup.runMachine();
-    }
-    
-    return this.specSetup.setup.container.inversifyInstance.get<ApiAiHandle>("apiai:current-response-handler");  
+    this.specHelper.assistantJs.container.inversifyInstance.unbind(apiaiInjectionNames.current.responseHandler);
+    this.specHelper.assistantJs.container.inversifyInstance
+      .bind(apiaiInjectionNames.current.responseHandler)
+      .to(ApiAiHandler)
+      .inSingletonScope();
+
+    const proxyFactory = this.specHelper.assistantJs.container.inversifyInstance.get<HandlerProxyFactory>(injectionNames.handlerProxyFactory);
+
+    const currentHandler = this.specHelper.assistantJs.container.inversifyInstance.get<ApiAiHandler<ApiAiSpecificTypes>>(
+      apiaiInjectionNames.current.responseHandler
+    );
+    const proxiedHandler = proxyFactory.createHandlerProxy(currentHandler);
+
+    return proxiedHandler;
   }
 }

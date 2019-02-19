@@ -1,6 +1,6 @@
-import {  } from "assistant-source";
+import { GenericIntent } from "assistant-source";
+// tslint:disable-next-line:no-submodule-imports
 import { componentInterfaces } from "assistant-source/lib/components/unifier/private-interfaces";
-import { Extractor } from "../src/components/apiai/extractor";
 import { validRequestContext } from "./support/mocks/request-context";
 
 describe("this.extractor", function() {
@@ -22,7 +22,10 @@ describe("this.extractor", function() {
       });
 
       it("throws exception", function() {
-        return this.extractor.fits(this.context).then(result => fail()).catch(result => expect(true).toBeTruthy());
+        return this.extractor
+          .fits(this.context)
+          .then(result => fail())
+          .catch(result => expect(true).toBeTruthy());
       });
     });
 
@@ -38,7 +41,7 @@ describe("this.extractor", function() {
 
     describe("with wrong format", function() {
       beforeEach(function() {
-        delete this.context.body.sessionId;
+        delete this.context.body.session;
       });
 
       it("returns false", function() {
@@ -80,18 +83,41 @@ describe("this.extractor", function() {
   });
 
   describe("extract", function() {
-    it("returns correct extraction", async function(done) {
-      this.extraction = await this.extractor.extract(this.context);
+    describe("with valid request", function() {
+      it("returns correct extraction", async function(done) {
+        this.extraction = await this.extractor.extract(this.context);
 
-      expect(this.extraction).toEqual({
-        sessionID: "apiai-my-apiai-session-id",
-        intent: "myIntent",
-        entities: {"entityOne": "entityValue1", "entityTwo": "entityValue2"},
-        language: "en",
-        platform: this.extractor.component.name,
-        spokenText: "my spoken query"
+        expect(this.extraction).toEqual({
+          sessionID: "my-dialogflow-session",
+          intent: "Matched Intent Name",
+          entities: { param1: "param-value1", param2: "param-value2" },
+          language: "en",
+          platform: this.extractor.component.name,
+          spokenText: "user's original agent query",
+          additionalParameters: { key1: "value1" },
+        });
+        done();
       });
-      done()
+    });
+
+    describe("with unhandled intent", function() {
+      beforeEach(async function() {
+        this.context.body.queryResult.intent.displayName = "__unhandled";
+        this.context.body.queryResult.intent.isFallback = true;
+        this.extraction = await this.extractor.extract(this.context);
+      });
+
+      it("returns unhandeld intent", async function() {
+        expect(this.extraction).toEqual({
+          sessionID: "my-dialogflow-session",
+          intent: GenericIntent.Unhandled,
+          entities: { param1: "param-value1", param2: "param-value2" },
+          language: "en",
+          platform: this.extractor.component.name,
+          spokenText: "user's original agent query",
+          additionalParameters: { key1: "value1" },
+        });
+      });
     });
   });
 });

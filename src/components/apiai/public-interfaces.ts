@@ -1,24 +1,30 @@
-import { MinimalRequestExtraction, OptionalExtractions, MinimalResponseHandler, OptionalHandlerFeatures } from "assistant-source";
+import { BasicAnswerTypes, BasicHandable, MinimalRequestExtraction, OptionalExtractions, RequestContext } from "assistant-source";
 import { Configuration } from "./private-interfaces";
+import * as DialogflowInterface from "./webhook-interface";
 
 /** Configuration of apiai component */
-export interface ApiaiConfiguration extends Partial<Configuration.Defaults>, Configuration.Required {};
+export interface ApiaiConfiguration extends Partial<Configuration.Defaults>, Configuration.Required {}
 
 /** Property describing the configuration of the apiai component */
 export interface ApiaiConfigurationAttribute {
-  "apiai": ApiaiConfiguration;
+  apiai: ApiaiConfiguration;
 }
 
-export interface Extraction extends 
-  MinimalRequestExtraction,
-  OptionalExtractions.SpokenTextExtraction {}
+export interface ExtractionInterface extends MinimalRequestExtraction, OptionalExtractions.SpokenText, OptionalExtractions.AdditionalParameters {}
 
-export interface HandlerInterface extends
-  MinimalResponseHandler,
-  OptionalHandlerFeatures.GUI.ChatBubble {
-    getBody(): {
-      data: any;
-      speech?: string;
-      displayText?: string;
-    };
-  }
+/**
+ * Add custom types here
+ */
+// tslint:disable-next-line:no-empty-interface
+export interface ApiAiSpecificTypes extends BasicAnswerTypes {}
+
+/**
+ * Add custom methods for here
+ */
+export interface ApiAiSpecificHandable<MergedTypes extends ApiAiSpecificTypes> extends BasicHandable<MergedTypes> {}
+
+export interface DialogflowRequestContext extends RequestContext {
+  body: DialogflowInterface.WebhookRequest<any>;
+}
+
+export { DialogflowInterface };
