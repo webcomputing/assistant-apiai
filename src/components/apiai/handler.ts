@@ -1,13 +1,4 @@
-import {
-  applyMixin,
-  BasicHandler,
-  injectionNames,
-  MinimalRequestExtraction,
-  OptionalHandlerFeatures,
-  RequestContext,
-  ResponseHandlerExtensions,
-  SuggestionChipsMixin,
-} from "assistant-source";
+import { BasicHandler, injectionNames, MinimalRequestExtraction, RequestContext, ResponseHandlerExtensions } from "assistant-source";
 import { inject, injectable } from "inversify";
 import { ApiAiSpecificHandable, ApiAiSpecificTypes, DialogflowInterface } from "./public-interfaces";
 
@@ -36,8 +27,3 @@ export class ApiAiHandler<MergedAnswerTypes extends ApiAiSpecificTypes> extends 
     return response;
   }
 }
-
-/**
- * Apply Mixins
- */
-applyMixin(ApiAiHandler, [SuggestionChipsMixin]);

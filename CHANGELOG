@@ -1,3 +1,6 @@
+0.4.2
+- removes applying of suggestion chips mixin to handler
+
 0.4.1
 - solved some todos regarding suggestion chips / payload tryouts
 
