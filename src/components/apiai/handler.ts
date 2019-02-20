@@ -13,18 +13,8 @@ import { ApiAiSpecificHandable, ApiAiSpecificTypes, DialogflowInterface } from "
 
 @injectable()
 export class ApiAiHandler<MergedAnswerTypes extends ApiAiSpecificTypes> extends BasicHandler<MergedAnswerTypes>
-  implements ApiAiSpecificHandable<MergedAnswerTypes>, OptionalHandlerFeatures.SuggestionChips<MergedAnswerTypes> {
+  implements ApiAiSpecificHandable<MergedAnswerTypes> {
   public specificWhitelist: string[] = [];
-
-  /**
-   * ToDo: Remove from ApiAi with mixins and implemented Interface. ALSO look for other "TODO" flags to remove!!
-   */
-  public setSuggestionChips!: (suggestionChips: MergedAnswerTypes["suggestionChips"] | Promise<MergedAnswerTypes["suggestionChips"]>) => this;
-
-  /**
-   * ToDo: Also remove this
-   */
-  public additionalPayload: any = {};
 
   constructor(
     @inject(injectionNames.current.requestContext) requestContext: RequestContext,
@@ -42,11 +32,6 @@ export class ApiAiHandler<MergedAnswerTypes extends ApiAiSpecificTypes> extends 
     if (results.voiceMessage) {
       response.fulfillmentText = results.voiceMessage.text;
     }
-
-    /** ToDo: also remove */
-    response.payload = {};
-    response.payload = results;
-    response.payload.attachments = this.additionalPayload;
 
     return response;
   }

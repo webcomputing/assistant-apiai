@@ -1,3 +1,6 @@
+0.4.1
+- solved some todos regarding suggestion chips / payload tryouts
+
 0.4.0
 - aligns ApiAiSpecHelper with new spec helper interface from AssistantJS 0.4.0
 - add new ResponseHandler for compatibility with assistant-source 0.4.0
