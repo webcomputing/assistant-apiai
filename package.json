@@ -1,6 +1,6 @@
 {
   "name": "assistant-apiai",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Enables integration of api.ai into AssistantJS. Also needed for Google Assistant!",
   "scripts": {
     "test": "gulp test",
