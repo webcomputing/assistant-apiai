@@ -1,10 +1,10 @@
 import * as archiver from "archiver";
-import { GenericIntent, intent, PlatformGenerator, PlatformRequestExtraction } from "assistant-source";
+import { GenericIntent, PlatformGenerator } from "assistant-source";
 import * as fs from "fs";
 import { inject, injectable } from "inversify";
 import { Component, getMetaInjectionName } from "inversify-components";
 import { v4 as uuid } from "uuid";
-import { apiaiInjectionNames } from "./injection-names";
+import DialogflowEventStore from "./dialogflow-event-store";
 import { genericIntentToApiai } from "./intent-dict";
 import { COMPONENT_NAME, Configuration } from "./private-interfaces";
 
@@ -15,7 +15,7 @@ export class Generator implements PlatformGenerator.Extension {
   private intentDirectory: string = "";
   private entitiesDirectory: string = "";
   private language: string = "";
-  constructor(@inject("meta:component//apiai") private component: Component<Configuration.Runtime>) {}
+  constructor(@inject(getMetaInjectionName(COMPONENT_NAME)) private component: Component<Configuration.Runtime>) {}
 
   public execute(
     language: string,
@@ -114,7 +114,7 @@ export class Generator implements PlatformGenerator.Extension {
         webhookForSlotFilling: false,
         lastUpdate: this.getUnixTime(),
         fallbackIntent: false,
-        events: [],
+        events: this.prepareEventsFor(config.intent),
       };
 
       const utterances = config.utterances.map(utterance => this.buildUtterance(utterance, entityMapping, customEntityMapping));
@@ -123,7 +123,6 @@ export class Generator implements PlatformGenerator.Extension {
       return result;
     });
   }
-
   /**
    * Write necessary package.json with version into folder
    */
@@ -251,6 +250,16 @@ export class Generator implements PlatformGenerator.Extension {
 
     // Return result, but also add the "invokeGenericIntent", which acts as a the "default welcome intent"
     return withoutUndefinedUtterances.concat([{ intent: "invokeGenericIntent", entities: [], utterances: [] }]);
+  }
+
+  /**
+   * Search for events in the DialogflowEventStore and transfer them to the Dialogflow specific syntax.
+   * @param intent Search for the intent name
+   */
+  private prepareEventsFor(intent: string) {
+    const events = DialogflowEventStore.getEventsFor(intent);
+    if (events && events.length > 0) return events.map(event => ({ name: event }));
+    return [];
   }
 
   /**
