@@ -1,5 +1,6 @@
 export * from "./components/apiai/public-interfaces";
 export * from "./components/apiai/dialogflow-events-decorator";
+export { dialogflowEvents } from "./components/apiai/dialogflow-events-decorator";
 export { descriptor } from "./components/apiai/descriptor";
 export { ApiAiSpecHelper as SpecHelper } from "./spec-helper";
 export { ApiAiHandler } from "./components/apiai/handler";
