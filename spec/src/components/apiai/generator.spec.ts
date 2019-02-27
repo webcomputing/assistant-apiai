@@ -2,6 +2,7 @@ import * as archiver from "archiver";
 import { GenericIntent, intent, PlatformGenerator } from "assistant-source";
 import * as fs from "fs";
 import { Component, getMetaInjectionName } from "inversify-components";
+import * as path from "path";
 import DialogflowEventStore from "../../../../src/components/apiai/dialogflow-event-store";
 import { Generator } from "../../../../src/components/apiai/generator";
 import { COMPONENT_NAME, Configuration } from "../../../../src/components/apiai/private-interfaces";
@@ -190,15 +191,15 @@ describe("Generator", function() {
         });
 
         it("creates an apiai build directory", async function(this: CurrentThisContext) {
-          expect(fs.mkdirSync).toHaveBeenCalledWith(`${this.params.buildDir}/apiai`);
+          expect(fs.mkdirSync).toHaveBeenCalledWith(path.join(this.params.buildDir, "apiai"));
         });
 
         it("creates an entities folder in the apiai build directory", async function(this: CurrentThisContext) {
-          expect(fs.mkdirSync).toHaveBeenCalledWith(`${this.params.buildDir}/apiai/entities`);
+          expect(fs.mkdirSync).toHaveBeenCalledWith(path.join(this.params.buildDir, "apiai", "entities"));
         });
 
         it("creates an intents folder in the apiai build directory", async function(this: CurrentThisContext) {
-          expect(fs.mkdirSync).toHaveBeenCalledWith(`${this.params.buildDir}/apiai/intents`);
+          expect(fs.mkdirSync).toHaveBeenCalledWith(path.join(this.params.buildDir, "apiai", "intents"));
         });
       });
 
@@ -270,13 +271,13 @@ describe("Generator", function() {
 
         it("creates custom entities definition file in apiai entities build directory", async function(this: CurrentThisContext) {
           expect(fs.writeFileSync).toHaveBeenCalledWith(
-            `${this.params.buildDir}/apiai/entities/${Object.keys(this.componentMetaData.configuration.entities)[0]}.json`,
+            path.join(this.params.buildDir, "apiai", "entities", `${Object.keys(this.componentMetaData.configuration.entities)[0]}.json`),
             jasmine.anything()
           );
         });
 
         it("generate valid custom entities definition for each type", async function(this: CurrentThisContext) {
-          expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching("apiai/entities/"), {
+          expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching(path.join("apiai", "entities")), {
             id: jasmine.anything(),
             name: jasmine.any(String),
             isOverridable: jasmine.any(Boolean),
@@ -288,7 +289,7 @@ describe("Generator", function() {
         it("writes configured custom entities definitions to separate custom entities synonym file", async function(this: CurrentThisContext) {
           Object.keys(this.params.customEntityMapping[this.currentLanguage]).forEach(customEntityMapping => {
             expect(fs.writeFileSync).toHaveBeenCalledWith(
-              `${this.params.buildDir}/apiai/entities/${customEntityMapping}_entries_${this.currentLanguage}.json`,
+              path.join(this.params.buildDir, "apiai", "entities", `${customEntityMapping}_entries_${this.currentLanguage}.json`),
               this.params.customEntityMapping[this.currentLanguage][customEntityMapping]
             );
           });
@@ -303,7 +304,10 @@ describe("Generator", function() {
 
       it("will not create an entity definition file", async function(this: CurrentThisContext) {
         expect(fs.writeFileSync).toHaveBeenCalled();
-        expect(fs.writeFileSync).not.toHaveBeenCalledWith(jasmine.stringMatching(`${this.params.buildDir}/apiai/entities/`), jasmine.anything());
+        expect(fs.writeFileSync).not.toHaveBeenCalledWith(
+          jasmine.stringMatching(path.join(this.params.buildDir, "apiai", "entities", path.sep)),
+          jasmine.anything()
+        );
       });
     });
 
@@ -314,7 +318,7 @@ describe("Generator", function() {
         });
 
         it(`creates an invokeGenericIntent definition file in the apiai intents build directory`, async function(this: CurrentThisContext) {
-          expect(fs.writeFileSync).toHaveBeenCalledWith(`${this.params.buildDir}/apiai/intents/invokeGenericIntent.json`, jasmine.anything());
+          expect(fs.writeFileSync).toHaveBeenCalledWith(path.join(this.params.buildDir, "apiai", "intents", "invokeGenericIntent.json"), jasmine.anything());
         });
 
         it(`generates an invokeGenericIntent definition file without any parameters`, async function(this: CurrentThisContext) {
@@ -330,7 +334,7 @@ describe("Generator", function() {
 
         it("will not create an utterances file for invokeGenericIntent", async function(this: CurrentThisContext) {
           expect(fs.writeFileSync).not.toHaveBeenCalledWith(
-            `${this.params.buildDir}/apiai/intents/invokeGenericIntent_usersays_${this.currentLanguage}.json`,
+            path.join(this.params.buildDir, "apiai", "intents", `invokeGenericIntent_usersays_${this.currentLanguage}.json`),
             jasmine.any(Object)
           );
         });
@@ -364,7 +368,7 @@ describe("Generator", function() {
         });
 
         it("creates an __unhandled intent definition file", async function(this: CurrentThisContext) {
-          expect(fs.writeFileSync).toHaveBeenCalledWith(`${this.params.buildDir}/apiai/intents/__unhandled.json`, jasmine.anything());
+          expect(fs.writeFileSync).toHaveBeenCalledWith(path.join(this.params.buildDir, "apiai", "intents", "__unhandled.json"), jasmine.anything());
         });
 
         it("transmit a valid __unhandled intent definition", async function(this: CurrentThisContext) {
@@ -398,7 +402,7 @@ describe("Generator", function() {
 
         it("will not creating an intent definition file for intents without utterances", async function(this: CurrentThisContext) {
           await this.execGenerator();
-          expect(fs.writeFileSync).not.toHaveBeenCalledWith(`${this.params.buildDir}/apiai/intents/helloWorld.json`, jasmine.anything());
+          expect(fs.writeFileSync).not.toHaveBeenCalledWith(path.join(this.params.buildDir, "apiai", "intents", "helloWorld.json"), jasmine.anything());
         });
 
         describe("with GenericIntent", function() {
@@ -423,7 +427,7 @@ describe("Generator", function() {
 
         it("creates an utterances schema definition file for helloWorld", async function(this: CurrentThisContext) {
           expect(fs.writeFileSync).toHaveBeenCalledWith(
-            `${this.params.buildDir}/apiai/intents/helloWorld_usersays_${this.currentLanguage}.json`,
+            path.join(this.params.buildDir, "apiai", "intents", `helloWorld_usersays_${this.currentLanguage}.json`),
             jasmine.anything()
           );
         });
@@ -453,7 +457,7 @@ describe("Generator", function() {
 
         it("creates a intent schema definition", async function(this: CurrentThisContext) {
           expect(fs.writeFileSync).toHaveBeenCalledWith(
-            `${this.params.buildDir}/apiai/intents/${this.params.intentConfigurations[this.currentLanguage][0].intent}.json`,
+            path.join(this.params.buildDir, "apiai", "intents", `${this.params.intentConfigurations[this.currentLanguage][0].intent}.json`),
             jasmine.anything()
           );
         });
@@ -471,7 +475,10 @@ describe("Generator", function() {
 
         it("creates a single intent definition file for each given intent", async function(this: CurrentThisContext) {
           this.params.intentConfigurations[this.currentLanguage].forEach(intentConfiguration =>
-            expect(fs.writeFileSync).toHaveBeenCalledWith(`${this.params.buildDir}/apiai/intents/${intentConfiguration.intent}.json`, jasmine.anything())
+            expect(fs.writeFileSync).toHaveBeenCalledWith(
+              path.join(this.params.buildDir, "apiai", "intents", `${intentConfiguration.intent}.json`),
+              jasmine.anything()
+            )
           );
         });
 
@@ -479,7 +486,7 @@ describe("Generator", function() {
           this.params.intentConfigurations[this.currentLanguage].forEach(intentConfiguration =>
             this.params.languages.forEach(language => {
               expect(fs.writeFileSync).toHaveBeenCalledWith(
-                `${this.params.buildDir}/apiai/intents/${intentConfiguration.intent}_usersays_${language}.json`,
+                path.join(this.params.buildDir, "apiai", "intents", `${intentConfiguration.intent}_usersays_${language}.json`),
                 jasmine.anything()
               );
             })
@@ -507,23 +514,29 @@ describe("Generator", function() {
         });
 
         it("creates a package.json file in the apiai build directory", async function(this: CurrentThisContext) {
-          expect(fs.writeFileSync).toHaveBeenCalledWith(`${this.params.buildDir}/apiai/package.json`, jasmine.any(Object));
+          expect(fs.writeFileSync).toHaveBeenCalledWith(path.join(this.params.buildDir, "apiai", "package.json"), jasmine.any(Object));
         });
 
         it("creates a bundle.zip file in the apiai build directory", async function(this: CurrentThisContext) {
-          expect(fs.createWriteStream).toHaveBeenCalledWith(`${this.params.buildDir}/apiai/bundle.zip`);
+          expect(fs.createWriteStream).toHaveBeenCalledWith(path.join(this.params.buildDir, "apiai", "bundle.zip"));
         });
 
         it("includes generated intents directory in bundle.zip file", async function(this: CurrentThisContext) {
-          expect(this.archiverSpys.directory).toHaveBeenCalledWith(`${this.params.buildDir}/apiai/intents/`, "intents/");
+          expect(this.archiverSpys.directory).toHaveBeenCalledWith(
+            path.join(this.params.buildDir, "apiai", "intents", path.sep),
+            path.join("intents", path.sep)
+          );
         });
 
         it("includes generated entities directory in bundle.zip file", async function(this: CurrentThisContext) {
-          expect(this.archiverSpys.directory).toHaveBeenCalledWith(`${this.params.buildDir}/apiai/entities/`, "entities/");
+          expect(this.archiverSpys.directory).toHaveBeenCalledWith(
+            path.join(this.params.buildDir, "apiai", "entities", path.sep),
+            path.join("entities", path.sep)
+          );
         });
 
         it("includes generated package.json in bundle.zip file", async function(this: CurrentThisContext) {
-          expect(this.archiverSpys.file).toHaveBeenCalledWith(`${this.params.buildDir}/apiai/package.json`, { name: "package.json" });
+          expect(this.archiverSpys.file).toHaveBeenCalledWith(path.join(this.params.buildDir, "apiai", "package.json"), { name: "package.json" });
         });
 
         it("writes bundle.zip file to disk and finalize it", async function(this: CurrentThisContext) {
@@ -539,7 +552,7 @@ describe("Generator", function() {
       });
 
       it("removes unspeakable generic intents from intent definition", async function(this: CurrentThisContext) {
-        expect(fs.writeFileSync).not.toHaveBeenCalledWith(`${this.params.buildDir}/apiai/intents/11.json`, jasmine.anything());
+        expect(fs.writeFileSync).not.toHaveBeenCalledWith(path.join(this.params.buildDir, "apiai", "intents", "11.json"), jasmine.anything());
       });
     });
 
@@ -581,22 +594,22 @@ describe("Generator", function() {
       });
 
       it("creates a intent configuration file", async function(this: CurrentThisContext) {
-        expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching(`intents/helloWorld.json`), jasmine.any(Object));
+        expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching(path.join("intents", "helloWorld.json")), jasmine.any(Object));
       });
 
       it("creates a single utterances configuration file for each language", async function(this: CurrentThisContext) {
-        expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching(`intents/helloWorld_usersays_de.json`), jasmine.any(Array));
-        expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching(`intents/helloWorld_usersays_en.json`), jasmine.any(Array));
+        expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching(path.join("intents", "helloWorld_usersays_de.json")), jasmine.any(Array));
+        expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching(path.join("intents", "helloWorld_usersays_en.json")), jasmine.any(Array));
       });
 
       it("creates a single custom entity file for each language", async function(this: CurrentThisContext) {
-        expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching(`entities/ENTITIES_TYPE_entries_de.json`), jasmine.any(Array));
-        expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching(`entities/ENTITIES_TYPE_entries_en.json`), jasmine.any(Array));
+        expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching(path.join("entities", "ENTITIES_TYPE_entries_de.json")), jasmine.any(Array));
+        expect(fs.writeFileSync).toHaveBeenCalledWith(jasmine.stringMatching(path.join("entities", "ENTITIES_TYPE_entries_en.json")), jasmine.any(Array));
       });
 
       it("contains the german utterances in the german utterances file", async function(this: CurrentThisContext) {
         expect(fs.writeFileSync).toHaveBeenCalledWith(
-          jasmine.stringMatching(`intents/helloWorld_usersays_de.json`),
+          jasmine.stringMatching(path.join("intents", "helloWorld_usersays_de.json")),
           jasmine.arrayContaining([
             jasmine.objectContaining({
               data: jasmine.arrayContaining([jasmine.objectContaining({ text: "hallo @ENTITIES_TYPE:entity1" })]),
@@ -607,7 +620,7 @@ describe("Generator", function() {
 
       it("contains the german custom entities in the german entity file", async function(this: CurrentThisContext) {
         expect(fs.writeFileSync).toHaveBeenCalledWith(
-          jasmine.stringMatching(`entities/ENTITIES_TYPE_entries_de.json`),
+          jasmine.stringMatching(path.join("entities", "ENTITIES_TYPE_entries_de.json")),
           this.params.customEntityMapping.de.ENTITIES_TYPE
         );
       });
