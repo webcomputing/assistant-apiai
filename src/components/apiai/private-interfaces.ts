@@ -30,11 +30,17 @@ export namespace Configuration {
   export interface Runtime extends Defaults, Required {}
 }
 
+/** Api.ai specific Entity record */
 export interface Entity {
+  /** uuid which will be uniq for each entity language characteristic */
   id: string;
+  /** Name of the entity */
   name: string;
+  /** Indicates whether this entity can be overridden by a system or developer entity. Default is true. */
   isOverridable: boolean;
+  /** Indicates if the entity is a mapping or enum type entity. */
   isEnum: boolean;
+  /** Indicates if the entity can be expanded automatically. */
   automatedExpansion: boolean;
 }
 
