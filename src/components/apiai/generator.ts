@@ -3,10 +3,11 @@ import { GenericIntent, PlatformGenerator } from "assistant-source";
 import * as fs from "fs";
 import { inject, injectable } from "inversify";
 import { Component, getMetaInjectionName } from "inversify-components";
+import * as path from "path";
 import { v4 as uuid } from "uuid";
 import DialogflowEventStore from "./dialogflow-event-store";
 import { genericIntentToApiai } from "./intent-dict";
-import { COMPONENT_NAME, Configuration } from "./private-interfaces";
+import { COMPONENT_NAME, Configuration, Entity } from "./private-interfaces";
 
 // tslint:disable:no-console
 @injectable()
@@ -14,31 +15,42 @@ export class Generator implements PlatformGenerator.Extension {
   private currentBuildDir: string = "";
   private intentDirectory: string = "";
   private entitiesDirectory: string = "";
-  private language: string = "";
+  private languages: string[] = [];
   constructor(@inject(getMetaInjectionName(COMPONENT_NAME)) private component: Component<Configuration.Runtime>) {}
 
   public execute(
-    language: string,
+    languages: string[],
     buildDir: string,
-    intentConfigurations: PlatformGenerator.IntentConfiguration[],
+    intentConfigurations: PlatformGenerator.Multilingual<PlatformGenerator.IntentConfiguration[]>,
     entityMapping: PlatformGenerator.EntityMapping,
-    customEntityMapping: PlatformGenerator.CustomEntityMapping
+    customEntityMapping: PlatformGenerator.Multilingual<PlatformGenerator.CustomEntityMapping>
   ) {
-    this.language = language;
-    this.currentBuildDir = buildDir + "/apiai";
-    this.intentDirectory = this.currentBuildDir + "/intents";
-    this.entitiesDirectory = this.currentBuildDir + "/entities";
+    this.languages = languages;
+
+    this.currentBuildDir = path.join(buildDir, "apiai");
+    this.intentDirectory = path.join(this.currentBuildDir, "intents");
+    this.entitiesDirectory = path.join(this.currentBuildDir, "entities");
 
     console.log("=============     PROCESSING ON APIAI     ============");
-    console.log("Intents: #" + intentConfigurations.length + ", language: " + language);
+    console.log(`Intents: #${intentConfigurations.length}, languages: ${languages.join(",")}`);
 
     console.log("validating...");
-    const convertedIntents = this.prepareConfiguration(intentConfigurations);
 
-    console.log("building entities (" + Object.keys(customEntityMapping).length + ")...");
+    const defaultLanguage = this.component.configuration.defaultLanguage;
+    if (!intentConfigurations[defaultLanguage]) throw new Error(`Missing intent configuration for language "${defaultLanguage}"`);
+
+    const convertedIntents = this.languages
+      .map(language => {
+        return { [language]: this.prepareConfiguration(intentConfigurations[language]) };
+      })
+      .reduce((previousValue, currentValue) => {
+        return { ...previousValue, ...currentValue };
+      });
+
+    console.log(`building entities (${Object.keys(customEntityMapping[defaultLanguage]).length})...`);
     const customEntities = this.buildCustomEntities(customEntityMapping);
 
-    console.log("building intents (" + convertedIntents.length + ")...");
+    console.log(`building intents (${convertedIntents[defaultLanguage].length})...`);
     const intents = this.buildIntents(convertedIntents, entityMapping, customEntityMapping);
     intents.push(this.buildDefaultIntent());
 
@@ -46,12 +58,20 @@ export class Generator implements PlatformGenerator.Extension {
 
     console.log("writing to files...");
 
-    // Write intents and utterances
-    intents.forEach(intent => this.writeIntentAndUtterancesFiles(intent));
+    // Write configuration files for all intents and all utterances in each language
+    intents.forEach(intent => {
+      this.writeIntentFile(intent);
+
+      // Create a single user says file for each language
+      languages.forEach(language => {
+        this.writeUtteranceFile(language, intent);
+      });
+    });
 
     // Write custom entities
-    customEntities.forEach(entity => this.writeCustomEntitiesFiles(entity));
+    this.writeCustomEntitiesFiles(customEntities);
 
+    // Write a single package.json file for the current build
     this.writePackageJSON(this.currentBuildDir);
 
     console.log("writing bundled zip...");
@@ -63,25 +83,36 @@ export class Generator implements PlatformGenerator.Extension {
   }
 
   /**
-   * Return custom entities in Dialogflow schema syntax.
+   * Return custom entities in Dialogflow schema syntax for each language.
    * @param entityMapping
+   * @returns {PlatformGenerator.Multilingual<{ entity: Entity; entries: PlatformGenerator.Entry[] }> | {} } All entities and entries for each language
    */
-  public buildCustomEntities(customEntityMapping: PlatformGenerator.CustomEntityMapping) {
+  public buildCustomEntities(
+    customEntityMapping: PlatformGenerator.Multilingual<PlatformGenerator.CustomEntityMapping>
+  ): PlatformGenerator.Multilingual<{ entity: Entity; entries: PlatformGenerator.Entry[] }> | {} {
     const config = this.component.configuration;
 
-    return Object.keys(customEntityMapping).map(type => {
-      if (typeof config.entities[type] !== "undefined") {
-        const entity = {
-          id: uuid(),
-          name: type,
-          isOverridable: true,
-          isEnum: false,
-          automatedExpansion: false,
+    return this.languages
+      .map(language => {
+        return {
+          [language]: Object.keys(customEntityMapping[language]).map(type => {
+            if (typeof config.entities[type] !== "undefined") {
+              const entity: Entity = {
+                id: uuid(),
+                name: type,
+                isOverridable: true,
+                isEnum: false,
+                automatedExpansion: false,
+              };
+              const entries: PlatformGenerator.Entry[] = customEntityMapping[language][type];
+              return { entity, entries };
+            }
+          }),
         };
-        const entries = customEntityMapping[type];
-        return { entity, entries };
-      }
-    });
+      })
+      .reduce((previousValue, currentValue) => {
+        return { ...previousValue, ...currentValue };
+      });
   }
 
   /**
@@ -89,11 +120,12 @@ export class Generator implements PlatformGenerator.Extension {
    * @param preparedIntentConfiguration: Result of prepareConfiguration()
    */
   public buildIntents(
-    preparedIntentConfiguration: PreparedIntentConfiguration[],
+    preparedIntentConfiguration: PlatformGenerator.Multilingual<PreparedIntentConfiguration[]>,
     entityMapping: PlatformGenerator.EntityMapping,
-    customEntityMapping: PlatformGenerator.CustomEntityMapping
+    customEntityMapping: PlatformGenerator.Multilingual<PlatformGenerator.CustomEntityMapping>
   ) {
-    return preparedIntentConfiguration.map(config => {
+    const defaultLanguage = this.component.configuration.defaultLanguage;
+    return preparedIntentConfiguration[defaultLanguage].map(config => {
       const intent = {
         id: uuid(),
         name: config.intent,
@@ -103,8 +135,8 @@ export class Generator implements PlatformGenerator.Extension {
           {
             resetContexts: false,
             affectedContexts: [],
-            parameters: this.makeIntentParameters(config.entities, entityMapping, customEntityMapping),
-            messages: [{ type: 0, lang: "en", speech: [] }],
+            parameters: this.makeIntentParameters(config.entities, entityMapping, customEntityMapping[defaultLanguage]),
+            messages: [{ type: 0, lang: this.component.configuration.defaultLanguage, speech: [] }],
             defaultResponsePlatforms: {},
             speech: [],
           },
@@ -117,7 +149,20 @@ export class Generator implements PlatformGenerator.Extension {
         events: this.prepareEventsFor(config.intent),
       };
 
-      const utterances = config.utterances.map(utterance => this.buildUtterance(utterance, entityMapping, customEntityMapping));
+      const utterances = this.languages
+        .map(language => {
+          const currentLanguageConfiguration = preparedIntentConfiguration[language].find(currentConfig => currentConfig.intent === config.intent);
+          if (currentLanguageConfiguration) {
+            return {
+              [language]: currentLanguageConfiguration.utterances.map(utterance =>
+                this.buildUtterance(utterance, entityMapping, customEntityMapping[language])
+              ),
+            };
+          }
+        })
+        .reduce((previousValue, currentValue) => {
+          return { ...previousValue, ...currentValue };
+        });
 
       const result = { intent, utterances };
       return result;
@@ -127,7 +172,7 @@ export class Generator implements PlatformGenerator.Extension {
    * Write necessary package.json with version into folder
    */
   public writePackageJSON(currentBuildDir: string) {
-    fs.writeFileSync(currentBuildDir + "/package.json", JSON.stringify({ version: "1.0.0" }, null, 2));
+    fs.writeFileSync(path.join(currentBuildDir, "package.json"), JSON.stringify({ version: "1.0.0" }, null, 2));
   }
 
   /** Returns  */
@@ -237,10 +282,10 @@ export class Generator implements PlatformGenerator.Extension {
     const withoutUndefinedUtterances: PreparedIntentConfiguration[] = [];
     preparedSet.forEach(config => {
       if (typeof config.intent === "string" && (typeof config.utterances === "undefined" || config.utterances.length === 0)) {
-        console.warn("You did not specify any utterances for intent: '" + config.intent + "'. This makes this intent not callable. Omitting.");
+        console.warn(`You did not specify any utterances for intent: '${config.intent}'. This makes this intent not callable. Omitting.`);
         if (config.intent.endsWith("GenericIntent")) {
           console.warn(
-            config.intent + " is a platform intent without utterances. Update your platform utterances service or specify some utterances on your own."
+            `${config.intent} is a platform intent without utterances. Update your platform utterances service or specify some utterances on your own.`
           );
         }
       } else {
@@ -266,7 +311,7 @@ export class Generator implements PlatformGenerator.Extension {
    * Create all needed build directories
    */
   private createBuildDirectory() {
-    console.log("creating build directory: " + this.currentBuildDir);
+    console.log(`creating build directory: ${this.currentBuildDir}`);
     fs.mkdirSync(this.currentBuildDir);
     fs.mkdirSync(this.intentDirectory);
     fs.mkdirSync(this.entitiesDirectory);
@@ -277,11 +322,11 @@ export class Generator implements PlatformGenerator.Extension {
    */
   private createBundleFile() {
     const zip = archiver("zip");
-    const output = fs.createWriteStream(this.currentBuildDir + "/bundle.zip");
+    const output = fs.createWriteStream(path.join(this.currentBuildDir, "bundle.zip"));
     zip.pipe(output);
-    zip.directory(this.intentDirectory + "/", "intents/");
-    zip.directory(this.entitiesDirectory + "/", "entities/");
-    zip.file(this.currentBuildDir + "/package.json", { name: "package.json" });
+    zip.directory(path.join(this.intentDirectory, path.sep), path.join("intents", path.sep));
+    zip.directory(path.join(this.entitiesDirectory, path.sep), path.join("entities", path.sep));
+    zip.file(path.join(this.currentBuildDir, "package.json"), { name: "package.json" });
     zip.finalize();
   }
 
@@ -289,10 +334,21 @@ export class Generator implements PlatformGenerator.Extension {
    * Writes generated intent schema to single definition file
    * @param intent
    */
-  private writeIntentAndUtterancesFiles(intent: ReturnType<Generator["buildDefaultIntent"]>) {
+  private writeIntentFile(intent: ReturnType<Generator["buildDefaultIntent"]>) {
     fs.writeFileSync(this.intentDirectory + "/" + intent.intent.name + ".json", JSON.stringify(intent.intent, null, 2));
-    if (intent.utterances && intent.utterances.length > 0) {
-      fs.writeFileSync(this.intentDirectory + "/" + intent.intent.name + "_usersays_" + this.language + ".json", JSON.stringify(intent.utterances, null, 2));
+  }
+
+  /**
+   * Generate a utterance file for each intent and language
+   * @param language language which should be affected
+   * @param intent intent which should be used
+   */
+  private writeUtteranceFile(language: string, intent: ReturnType<Generator["buildDefaultIntent"]>) {
+    if (intent.utterances && intent.utterances[language] && intent.utterances[language].length > 0) {
+      fs.writeFileSync(
+        this.intentDirectory + "/" + intent.intent.name + "_usersays_" + language + ".json",
+        JSON.stringify(intent.utterances[language], null, 2)
+      );
     }
   }
 
@@ -300,14 +356,22 @@ export class Generator implements PlatformGenerator.Extension {
    * Writes generated custom entities to entity definition and language specific synonym file
    * @param customEntity
    */
-  private writeCustomEntitiesFiles(customEntity) {
-    if (typeof customEntity !== "undefined") {
-      fs.writeFileSync(this.entitiesDirectory + "/" + customEntity.entity.name + ".json", JSON.stringify(customEntity.entity, null, 2));
-      fs.writeFileSync(
-        this.entitiesDirectory + "/" + customEntity.entity.name + "_entries_" + this.language + ".json",
-        JSON.stringify(customEntity.entries, null, 2)
-      );
-    }
+  private writeCustomEntitiesFiles(customEntities) {
+    const defaultCustomEntities = customEntities[this.component.configuration.defaultLanguage];
+    defaultCustomEntities.forEach(defaultCustomEntity => {
+      if (typeof defaultCustomEntity !== "undefined") {
+        fs.writeFileSync(`${this.entitiesDirectory}/${defaultCustomEntity.entity.name}.json`, JSON.stringify(defaultCustomEntity.entity, null, 2));
+        this.languages.forEach(language => {
+          const languageSpecificCustomEntities = customEntities[language].find(customEntity => customEntity.entity.name === defaultCustomEntity.entity.name);
+          if (languageSpecificCustomEntities) {
+            fs.writeFileSync(
+              `${this.entitiesDirectory}/${defaultCustomEntity.entity.name}_entries_${language}.json`,
+              JSON.stringify(languageSpecificCustomEntities.entries, null, 2)
+            );
+          }
+        });
+      }
+    });
   }
 
   private getUnixTime() {

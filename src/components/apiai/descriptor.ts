@@ -13,6 +13,7 @@ export const defaultConfiguration: Configuration.Defaults = {
     date: "@sys.date",
   },
   defaultDisplayIsVoice: true,
+  defaultLanguage: "en",
 };
 
 export let descriptor: ComponentDescriptor<Configuration.Defaults> = {

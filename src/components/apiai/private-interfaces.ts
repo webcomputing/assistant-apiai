@@ -9,6 +9,9 @@ export namespace Configuration {
 
     /** If set to true and if there is no chat bubble text, "displayText" will be set to the voiceResponse, default: true */
     defaultDisplayIsVoice: boolean;
+
+    /** Set the language api.ai should use by default.  default: "en" */
+    defaultLanguage: string;
   }
 
   /** Required configuration options, no defaults are used here */
@@ -25,6 +28,14 @@ export namespace Configuration {
 
   /** Available configuration settings in a runtime application */
   export interface Runtime extends Defaults, Required {}
+}
+
+export interface Entity {
+  id: string;
+  name: string;
+  isOverridable: boolean;
+  isEnum: boolean;
+  automatedExpansion: boolean;
 }
 
 /** Name of component */
