@@ -233,7 +233,7 @@ export class Generator implements PlatformGenerator.Extension {
       const utteranceSplits = utterance.split(/(\{\{.*\}\})/).filter(split => /\S/.test(split));
       utteranceData.push(
         ...utteranceSplits.map(split => {
-          // Check whether an entitiy exists
+          // Check whether an entity exists
           const entity = utteranceTemplateEntities.find(param => param === split);
           if (typeof entity !== "undefined") {
             // Extract value and name of entity
@@ -335,7 +335,7 @@ export class Generator implements PlatformGenerator.Extension {
    * @param intent
    */
   private writeIntentFile(intent: ReturnType<Generator["buildDefaultIntent"]>) {
-    fs.writeFileSync(this.intentDirectory + "/" + intent.intent.name + ".json", JSON.stringify(intent.intent, null, 2));
+    fs.writeFileSync(path.join(this.intentDirectory, `${intent.intent.name}.json`), JSON.stringify(intent.intent, null, 2));
   }
 
   /**
@@ -346,7 +346,7 @@ export class Generator implements PlatformGenerator.Extension {
   private writeUtteranceFile(language: string, intent: ReturnType<Generator["buildDefaultIntent"]>) {
     if (intent.utterances && intent.utterances[language] && intent.utterances[language].length > 0) {
       fs.writeFileSync(
-        this.intentDirectory + "/" + intent.intent.name + "_usersays_" + language + ".json",
+        path.join(this.intentDirectory, `${intent.intent.name}_usersays_${language}.json`),
         JSON.stringify(intent.utterances[language], null, 2)
       );
     }
@@ -408,7 +408,7 @@ export class Generator implements PlatformGenerator.Extension {
     }
 
     if (typeof config.entities === "undefined" || typeof config.entities[entityMapping[parameterName]] === "undefined") {
-      throw Error("Missing apiai configured type for entity '" + parameterName + "' (as " + entityMapping[parameterName] + ").");
+      throw Error(`Missing apiai configured type for entity '${parameterName}' (as ${entityMapping[parameterName]}).`);
     }
 
     // Return platform specific data type
