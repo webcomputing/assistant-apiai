@@ -58,15 +58,7 @@ export class Generator implements PlatformGenerator.Extension {
 
     console.log("writing to files...");
 
-    // Write configuration files for all intents and all utterances in each language
-    intents.forEach(intent => {
-      this.writeIntentFile(intent);
-
-      // Create a single user says file for each language
-      languages.forEach(language => {
-        this.writeUtteranceFile(language, intent);
-      });
-    });
+    this.generateIntentAndUtterancesSchema(intents, languages);
 
     // Write custom entities
     this.writeCustomEntitiesFiles(customEntities);
@@ -215,7 +207,7 @@ export class Generator implements PlatformGenerator.Extension {
 
   /**
    * Returns single utterance json for intent schema
-   * @param utterance Utterange string
+   * @param utterance Utterance string
    * @param entityMapping Mapping of entities
    * @param customEntityMapping Mapping of custom entities
    */
@@ -295,6 +287,23 @@ export class Generator implements PlatformGenerator.Extension {
 
     // Return result, but also add the "invokeGenericIntent", which acts as a the "default welcome intent"
     return withoutUndefinedUtterances.concat([{ intent: "invokeGenericIntent", entities: [], utterances: [] }]);
+  }
+
+  /**
+   * Generate the configuration files for all intents and all utterances in each language
+   * @param intents List of all intent configurations
+   * @param languages All registered languages
+   */
+  private generateIntentAndUtterancesSchema(intents, languages) {
+    intents.forEach(intent => {
+      // Write intent schema file
+      this.writeIntentFile(intent);
+
+      // Create a single user says schema for each language
+      languages.forEach(language => {
+        this.writeUtteranceFile(language, intent);
+      });
+    });
   }
 
   /**
