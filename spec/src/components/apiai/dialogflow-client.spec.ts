@@ -136,11 +136,11 @@ describe("DialogflowClient", function() {
         await this.dialogflowClient.exportConfig(this.buildDir);
       });
 
-      it("will not writes the exported data to an zip file", async function(this: CurrentThisContext) {
+      it("does not write the exported data to an zip file", async function(this: CurrentThisContext) {
         expect(fs.writeFileSync).not.toHaveBeenCalled();
       });
 
-      it("throws an missing data exception", async function(this: CurrentThisContext) {
+      it("throws a missing data exception", async function(this: CurrentThisContext) {
         expect(this.logger.error).toHaveBeenCalledWith(new Error("Missing Data"));
       });
     });
@@ -162,16 +162,20 @@ describe("DialogflowClient", function() {
       });
 
       describe("regarding configuration upload", function() {
-        it("creates an http request", async function(this: CurrentThisContext) {
+        it("creates a http request", async function(this: CurrentThisContext) {
           expect(this.requestSpy).toHaveBeenCalled();
         });
 
-        it("creates an http post request", async function(this: CurrentThisContext) {
+        it("creates a http post request", async function(this: CurrentThisContext) {
           expect(this.requestSpy).toHaveBeenCalledWith(jasmine.objectContaining({ method: "POST" }));
         });
 
-        it("creates an http request with content-type json", async function(this: CurrentThisContext) {
+        it("creates a http request with content-type json", async function(this: CurrentThisContext) {
           expect(this.requestSpy).toHaveBeenCalledWith(jasmine.objectContaining({ headers: { "Content-Type": "application/json" } }));
+        });
+
+        it("creates a http request to the dialogflow agent restore api", async function(this: CurrentThisContext) {
+          expect(this.requestSpy).toHaveBeenCalledWith(jasmine.objectContaining({ url: "https://dialogflow.googleapis.com/v2/projects/demo/agent:restore" }));
         });
 
         describe("regarding file data extraction", function() {
@@ -188,7 +192,7 @@ describe("DialogflowClient", function() {
           });
 
           it("encodes the configuration file data as a base64 string", async function(this: CurrentThisContext) {
-            expect(this.spys.toString).toHaveBeenCalled();
+            expect(this.spys.toString).toHaveBeenCalledWith("base64");
           });
         });
 
@@ -200,14 +204,21 @@ describe("DialogflowClient", function() {
 
     describe("with exception in dialogflow request", function() {
       beforeEach(async function(this: CurrentThisContext) {
+        (this.dialogflowClient as any).setGoogleClient = () => {};
         this.requestSpy = (() => {
-          throw new Error();
+          throw new Error("request exception");
         }) as any;
-        this.dialogflowClient.restoreConfig(this.buildDir);
       });
 
-      it("expect", async function(this: CurrentThisContext) {});
+      it("thows a request exception", async function(this: CurrentThisContext) {
+        try {
+          this.dialogflowClient.restoreConfig(this.buildDir);
+        } catch (error) {
+          expect(error.message).toEqual("request exception");
+        }
+      });
     });
+
     describe("without existing bundle file", function() {
       beforeEach(async function(this: CurrentThisContext) {
         (this.dialogflowClient as any).googleClient = auth.getClient();
