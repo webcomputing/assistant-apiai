@@ -214,6 +214,7 @@ describe("DialogflowClient", function() {
       it("thows a request exception", async function(this: CurrentThisContext) {
         try {
           this.dialogflowClient.restoreConfig(this.buildDir);
+          fail("Should throw a request exception");
         } catch (error) {
           expect(error.message).toEqual("request exception");
         }
