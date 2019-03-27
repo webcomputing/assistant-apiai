@@ -1,7 +1,13 @@
+0.4.2
+- removes applying of suggestion chips mixin to handler
+
+0.4.1
+- solved some todos regarding suggestion chips / payload tryouts
+
 0.4.0
 - aligns ApiAiSpecHelper with new spec helper interface from AssistantJS 0.4.0
 - add new ResponseHandler for compatibility with assistant-source 0.4.0
-- add interfaces for representing dialogflow api v2
+- switches to dialogflow api v2
 - annotate utterances with entities
 
 0.3.0
