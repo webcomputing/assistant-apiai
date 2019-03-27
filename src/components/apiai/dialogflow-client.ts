@@ -1,14 +1,21 @@
 import { injectionNames, Logger } from "assistant-source";
 import * as fs from "fs";
-import { auth } from "google-auth-library";
+import { auth, Compute, JWT, UserRefreshClient } from "google-auth-library";
 import { AuthClient } from "google-auth-library/build/src/auth/authclient";
 import { inject, injectable } from "inversify";
 import { Component, getMetaInjectionName } from "inversify-components";
+import * as path from "path";
 import { env } from "process";
 import { COMPONENT_NAME, Configuration, DialogflowExportResponse } from "./private-interfaces";
 
+/** URL to the google cloud server, needed to get an authentication token. (https://cloud.google.com/compute/docs/api/how-tos/authorization , https://dialogflow.com/docs/reference/v2-auth-setup) */
 const GOOGLE_CLOUD_URLS = ["https://www.googleapis.com/auth/dialogflow", "https://www.googleapis.com/auth/cloud-platform"];
+/** URL to the dialogflow project API. (https://cloud.google.com/dialogflow-enterprise/docs/reference/rest/v2/projects.agent) */
 const DIALOGFLOW_API_PROJECT_URL: string = "https://dialogflow.googleapis.com/v2/projects";
+
+/**
+ * Client for managing the dialogflow agent.
+ */
 @injectable()
 export class DialogflowClient {
   private googleClient?: AuthClient;
@@ -23,27 +30,25 @@ export class DialogflowClient {
    * @param buildDir current build directory like {root}/builds/12345678
    */
   public async restoreConfig(buildDir: string) {
-    await this.setGoogleClient();
+    const googleClient = await this.getGoogleClient();
+    const projectId = await auth.getProjectId();
 
-    if (this.googleClient) {
-      const projectId = await auth.getProjectId();
+    try {
+      const bundleFilePath = path.join(buildDir, "apiai", "bundle.zip");
 
-      try {
-        const bundleFilePath = `${buildDir}/apiai/bundle.zip`;
+      if (fs.existsSync(bundleFilePath)) {
+        const currentDecodedConfigurationZip = fs.readFileSync(bundleFilePath).toString("base64");
 
-        if (fs.existsSync(bundleFilePath)) {
-          const currentDecodedConfigurationZip = fs.readFileSync(bundleFilePath).toString("base64");
-
-          await this.googleClient.request({
-            url: `${DIALOGFLOW_API_PROJECT_URL}/${projectId}/agent:restore`,
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ agentContent: currentDecodedConfigurationZip }),
-          });
-        }
-      } catch (e) {
-        this.logger.error(e);
+        await googleClient.request({
+          // https://cloud.google.com/dialogflow-enterprise/docs/reference/rest/v2/projects.agent/restore
+          url: `${DIALOGFLOW_API_PROJECT_URL}/${projectId}/agent:restore`,
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ agentContent: currentDecodedConfigurationZip }),
+        });
       }
+    } catch (e) {
+      this.logger.error(e);
     }
   }
 
@@ -52,54 +57,50 @@ export class DialogflowClient {
    * @param buildDir
    */
   public async exportConfig(buildDir: string) {
-    await this.setGoogleClient();
+    const googleClient = await this.getGoogleClient();
+    const projectId = await auth.getProjectId();
 
-    if (this.googleClient) {
-      const projectId = await auth.getProjectId();
+    try {
+      const dialogflowExportResponse = await googleClient.request<DialogflowExportResponse>({
+        // https://cloud.google.com/dialogflow-enterprise/docs/reference/rest/v2/projects.agent/export
+        url: `${DIALOGFLOW_API_PROJECT_URL}/${projectId}/agent:export`,
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
 
-      try {
-        const dialogflowExportResponse = await this.googleClient.request<DialogflowExportResponse>({
-          url: `${DIALOGFLOW_API_PROJECT_URL}/${projectId}/agent:export`,
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        });
+      if (
+        dialogflowExportResponse &&
+        dialogflowExportResponse.data &&
+        dialogflowExportResponse.data.response &&
+        dialogflowExportResponse.data.response.agentContent
+      ) {
+        this.createDir(path.join(buildDir, "deployments"));
 
-        if (
-          dialogflowExportResponse &&
-          dialogflowExportResponse.data &&
-          dialogflowExportResponse.data.response &&
-          dialogflowExportResponse.data.response.agentContent
-        ) {
-          this.createDir(`${buildDir}/deployments`);
-
-          const agentContent = Buffer.from(dialogflowExportResponse.data.response.agentContent, "base64").toString("binary");
-          fs.writeFileSync(`${buildDir}/deployments/backup-dialogflow.zip`, agentContent, "binary");
-        } else {
-          throw new Error("Missing Data");
-        }
-      } catch (e) {
-        this.logger.error(e);
+        const agentContent = Buffer.from(dialogflowExportResponse.data.response.agentContent, "base64").toString("binary");
+        fs.writeFileSync(path.join(buildDir, "deployments", "backup-dialogflow.zip"), agentContent, "binary");
+      } else {
+        throw new Error("Missing Data");
       }
+    } catch (e) {
+      this.logger.error(e);
     }
   }
 
   /**
    * Set the google client.
    */
-  private async setGoogleClient() {
-    if (this.googleClient === undefined) {
-      /** Use the given environment variable, the configured once or a default one */
-      env.GOOGLE_APPLICATION_CREDENTIALS = env.GOOGLE_APPLICATION_CREDENTIALS || this.componentMeta.configuration.googleApplicationCredentials;
+  private getGoogleClient(): Promise<Compute | JWT | UserRefreshClient> {
+    /** Use the given environment variable, the configured once or a default one */
+    env.GOOGLE_APPLICATION_CREDENTIALS = env.GOOGLE_APPLICATION_CREDENTIALS || this.componentMeta.configuration.googleApplicationCredentials;
 
-      /** Check if the given GOOGLE_APPLICATION_CREDENTIALS exists.  */
-      if (!fs.existsSync(env.GOOGLE_APPLICATION_CREDENTIALS)) {
-        throw new Error(
-          `The given google application credentials file (GOOGLE_APPLICATION_CREDENTIALS='${process.env.GOOGLE_APPLICATION_CREDENTIALS}') does not exists.`
-        );
-      }
-
-      this.googleClient = await auth.getClient({ scopes: GOOGLE_CLOUD_URLS });
+    /** Check if the given GOOGLE_APPLICATION_CREDENTIALS exists.  */
+    if (!fs.existsSync(env.GOOGLE_APPLICATION_CREDENTIALS)) {
+      throw new Error(
+        `The given google application credentials file (GOOGLE_APPLICATION_CREDENTIALS='${process.env.GOOGLE_APPLICATION_CREDENTIALS}') does not exists.`
+      );
     }
+
+    return auth.getClient({ scopes: GOOGLE_CLOUD_URLS });
   }
 
   /**

@@ -204,6 +204,7 @@ describe("DialogflowClient", function() {
 
     describe("with exception in dialogflow request", function() {
       beforeEach(async function(this: CurrentThisContext) {
+        // tslint:disable-next-line:no-empty
         (this.dialogflowClient as any).setGoogleClient = () => {};
         this.requestSpy = (() => {
           throw new Error("request exception");

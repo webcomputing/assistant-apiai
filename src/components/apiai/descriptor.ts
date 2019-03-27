@@ -1,6 +1,7 @@
 import { CLIDeploymentExtension, PlatformGenerator, RequestExtractor } from "assistant-source";
 import { ComponentDescriptor } from "inversify-components";
 import { homedir } from "os";
+import * as path from "path";
 import { ApiAiDeployment } from "./deployment";
 import { DialogflowClient } from "./dialogflow-client";
 import { Extractor } from "./extractor";
@@ -16,7 +17,7 @@ export const defaultConfiguration: Configuration.Defaults = {
     date: "@sys.date",
   },
   defaultDisplayIsVoice: true,
-  googleApplicationCredentials: `${homedir}/.config/assistant/dialogflow.json`,
+  googleApplicationCredentials: path.join(homedir(), ".config", "assistant", "dialogflow.json"),
 };
 
 export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
