@@ -37,15 +37,15 @@ export class Generator implements PlatformGenerator.Extension {
     console.log("validating...");
 
     const defaultLanguage = this.component.configuration.defaultLanguage;
-    if (!intentConfigurations[defaultLanguage]) throw new Error(`Missing intent configuration for language "${defaultLanguage}"`);
+    if (!intentConfigurations[defaultLanguage]) {
+      throw new Error(
+        `Missing intent configuration for configured default language "${defaultLanguage}". You may change the default language in your dialogflow component configuration.`
+      );
+    }
 
     const convertedIntents = this.languages
-      .map(language => {
-        return { [language]: this.prepareConfiguration(intentConfigurations[language]) };
-      })
-      .reduce((previousValue, currentValue) => {
-        return { ...previousValue, ...currentValue };
-      });
+      .map(language => ({ [language]: this.prepareConfiguration(intentConfigurations[language]) }))
+      .reduce((previousValue, currentValue) => ({ ...previousValue, ...currentValue }), {});
 
     console.log(`building entities (${Object.keys(customEntityMapping[defaultLanguage]).length})...`);
     const customEntities = this.buildCustomEntities(customEntityMapping);
@@ -102,9 +102,7 @@ export class Generator implements PlatformGenerator.Extension {
           }),
         };
       })
-      .reduce((previousValue, currentValue) => {
-        return { ...previousValue, ...currentValue };
-      });
+      .reduce((previousValue, currentValue) => ({ ...previousValue, ...currentValue }), {});
   }
 
   /**
@@ -151,10 +149,11 @@ export class Generator implements PlatformGenerator.Extension {
               ),
             };
           }
+          console.warn(
+            `Could not find any language specific intent configuration for language="${language}" and intent="${config.intent}". Please add this configuration.`
+          );
         })
-        .reduce((previousValue, currentValue) => {
-          return { ...previousValue, ...currentValue };
-        });
+        .reduce((previousValue, currentValue) => ({ ...previousValue, ...currentValue }), {});
 
       const result = { intent, utterances };
       return result;
@@ -370,6 +369,7 @@ export class Generator implements PlatformGenerator.Extension {
     defaultCustomEntities.forEach(defaultCustomEntity => {
       if (typeof defaultCustomEntity !== "undefined") {
         fs.writeFileSync(`${this.entitiesDirectory}/${defaultCustomEntity.entity.name}.json`, JSON.stringify(defaultCustomEntity.entity, null, 2));
+
         this.languages.forEach(language => {
           const languageSpecificCustomEntities = customEntities[language].find(customEntity => customEntity.entity.name === defaultCustomEntity.entity.name);
           if (languageSpecificCustomEntities) {
