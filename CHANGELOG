@@ -1,3 +1,6 @@
+version 0.5.0
+- adds automatic Dialogflow deployment for 'assistant deploy'
+
 0.4.2
 - removes applying of suggestion chips mixin to handler
 
