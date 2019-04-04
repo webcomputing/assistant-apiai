@@ -30,6 +30,9 @@ export class DialogflowClient {
    * @param buildDir current build directory like {root}/builds/12345678
    */
   public async restoreConfig(buildDir: string) {
+    // tslint:disable-next-line:no-console
+    console.log("Deploy generated bundle file...");
+
     const googleClient = await this.getGoogleClient();
     const projectId = await auth.getProjectId();
 
@@ -46,9 +49,15 @@ export class DialogflowClient {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ agentContent: currentDecodedConfigurationZip }),
         });
+
+        // tslint:disable-next-line:no-console
+        console.log("Generated bundle file is successfully deployed to the configured Dialogflow Agent");
+      } else {
+        throw new Error("Dialogflow bundle file could not be found. Probably the generator could not generate the Dialogflow specific configuration.");
       }
     } catch (e) {
-      this.logger.error(e);
+      // tslint:disable-next-line:no-console
+      console.error(e);
     }
   }
 
@@ -57,6 +66,9 @@ export class DialogflowClient {
    * @param buildDir
    */
   public async exportConfig(buildDir: string) {
+    // tslint:disable-next-line:no-console
+    console.log("Export current Dialogflow configuration...");
+
     const googleClient = await this.getGoogleClient();
     const projectId = await auth.getProjectId();
 
@@ -77,7 +89,11 @@ export class DialogflowClient {
         this.createDir(path.join(buildDir, "deployments"));
 
         const agentContent = Buffer.from(dialogflowExportResponse.data.response.agentContent, "base64").toString("binary");
-        fs.writeFileSync(path.join(buildDir, "deployments", "backup-dialogflow.zip"), agentContent, "binary");
+        const backupFilePath = path.join(buildDir, "deployments", "backup-dialogflow.zip");
+        fs.writeFileSync(backupFilePath, agentContent, "binary");
+
+        // tslint:disable-next-line:no-console
+        console.log(`The old Dialogflow Agent configuration will be back up and could be found at: \n${backupFilePath}`);
       } else {
         throw new Error("Missing Data");
       }
