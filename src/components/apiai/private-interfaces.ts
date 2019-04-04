@@ -12,6 +12,9 @@ export namespace Configuration {
 
     /** Path to the Google Assistant service account access key. Take a look at @Link {https://dialogflow.com/docs/reference/v2-auth-setup} */
     googleApplicationCredentials: string;
+
+    /** Set the language api.ai should use by default.  default: "en" */
+    defaultLanguage: string;
   }
 
   /** Required configuration options, no defaults are used here */
@@ -28,6 +31,20 @@ export namespace Configuration {
 
   /** Available configuration settings in a runtime application */
   export interface Runtime extends Defaults, Required {}
+}
+
+/** Api.ai specific Entity record */
+export interface Entity {
+  /** uuid which will be uniq for each entity language characteristic */
+  id: string;
+  /** Name of the entity */
+  name: string;
+  /** Indicates whether this entity can be overridden by a system or developer entity. Default is true. */
+  isOverridable: boolean;
+  /** Indicates if the entity is a mapping or enum type entity. */
+  isEnum: boolean;
+  /** Indicates if the entity can be expanded automatically. */
+  automatedExpansion: boolean;
 }
 
 /** Name of component */

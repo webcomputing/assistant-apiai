@@ -18,6 +18,7 @@ export const defaultConfiguration: Configuration.Defaults = {
   },
   defaultDisplayIsVoice: true,
   googleApplicationCredentials: path.join(homedir(), ".config", "assistant", "dialogflow.json"),
+  defaultLanguage: "en",
 };
 
 export let descriptor: ComponentDescriptor<Configuration.Defaults> = {
